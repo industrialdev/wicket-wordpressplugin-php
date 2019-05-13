@@ -30,3 +30,6 @@ Requires WP-CASSIFY plugin *AND* the "Base Wicket Plugin"
 
 This will work on user login. Deletes existing user roles then re-adds based on what's set on the user in Wicket. If the roles don't exist in
 Wordpress, they will be created on the fly
+
+## Login link for theme
+`<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/' ?>`
