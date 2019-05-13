@@ -3,9 +3,9 @@
 use Wicket\Client;
 
 /*
-	Plugin Name: Wicket
-	Description: Base Wicket Plugin
-	Author: Industrial
+Plugin Name: Wicket
+Description: Base Wicket Plugin
+Author: Industrial
 */
 
 require_once('classes/class_wicket_settings.php');

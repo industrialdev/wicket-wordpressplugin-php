@@ -3,9 +3,9 @@
 use Wicket\Client;
 
 /*
-	Plugin Name: Wicket CAS Role Sync
-	Description: wicket.io plugin that provides a custom action that listens for CAS login thus allowing role syncing capability on fire of that CAS login event - Requires WP-CASSIFY AND the "Base Wicket Plugin"
-	Author: Industrial
+Plugin Name: Wicket CAS Role Sync
+Description: wicket.io plugin that provides a custom action that listens for CAS login thus allowing role syncing capability on fire of that CAS login event - Requires WP-CASSIFY AND the "Base Wicket Plugin"
+Author: Industrial
 */
 
 /**------------------------------------------------------------------
