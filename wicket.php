@@ -9,31 +9,8 @@ Author: Industrial
 */
 
 require_once('classes/class_wicket_settings.php');
-
-/**------------------------------------------------------------------
- * Get wicket environment info from Wicket settings page in the admin
- ------------------------------------------------------------------*/
-function get_wicket_settings(){
-  $settings = [];
-  $environment = get_option('wicket_admin_settings_environment');
-  switch ($environment[0]) {
-    case 'prod':
-      $settings['api_endpoint'] = get_option('wicket_admin_settings_prod_api_endpoint');
-      $settings['jwt'] = get_option('wicket_admin_settings_prod_secret_key');
-      $settings['person_id'] = get_option('wicket_admin_settings_prod_person_id');
-      $settings['parent_org'] = get_option('wicket_admin_settings_prod_parent_org');
-      $settings['wicket_admin'] = get_option('wicket_admin_settings_prod_wicket_admin');
-      break;
-    default:
-      $settings['api_endpoint'] = get_option('wicket_admin_settings_stage_api_endpoint');
-      $settings['jwt'] = get_option('wicket_admin_settings_stage_secret_key');
-      $settings['person_id'] = get_option('wicket_admin_settings_stage_person_id');
-      $settings['parent_org'] = get_option('wicket_admin_settings_stage_parent_org');
-      $settings['wicket_admin'] = get_option('wicket_admin_settings_stage_wicket_admin');
-      break;
-  }
-  return $settings;
-}
+require_once('includes/helpers.php');
+require_once('includes/assets.php');
 
 
 // function custom_rewrite_onboarding() {

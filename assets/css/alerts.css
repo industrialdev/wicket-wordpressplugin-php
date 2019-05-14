@@ -1,0 +1,20 @@
+.error {
+    color: #bc0915;
+    display: block
+}
+.error_input {
+    border: 1px solid #ee1c24 !important;
+    background: #fef7d7 !important
+}
+div.status{
+  padding: 10px;
+  color: #000000;
+  border: none !important;
+  margin-bottom: 20px;
+}
+.alert__icon{
+  position: relative !important;
+}
+.alert__message a{
+  color:#2e373e;
+}
