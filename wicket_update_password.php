@@ -13,7 +13,7 @@ function process_wicket_password_form() {
 	$person = get_person();
 
 	$errors = [];
-	if (!empty($_POST)):
+	if (isset($_POST['current_password'])):
 		// UPDATE PASSWORD
 		// ----------------------------------------
 		$current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
@@ -92,11 +92,15 @@ class wicket_update_password extends WP_Widget {
 		);
 	}
 
+	public function form( $instance ) {
+	}
+
 	// Display the widget
 	public function widget($args, $instance)
 	{
 		$this->build_form();
 	}
+
 
 	private function build_form()
 	{
