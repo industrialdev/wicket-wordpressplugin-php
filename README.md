@@ -20,9 +20,9 @@ then run composer update to get the wicket sdk
 # Enable plugin(s)
 
 ## Base Wicket Plugin
-Enable the "Wicket" plugin at least in the wordpress admin. Enter the relevant API credentials.
+Enable the "Wicket" plugin in the wordpress admin. This is required for any of the sub-plugins below. Enter the relevant API credentials on the provided settings form in the backend.
 
-If needed, you can also enable the other plugins to extend functionality.
+If needed, you can also enable the other plugins below to extend functionality.
 
 ## Wicket CAS Role Sync
 
