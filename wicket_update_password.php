@@ -8,6 +8,71 @@ Description: wicket.io plugin responsible for providing a widget with a form to 
 Author: Industrial
 */
 
+function process_wicket_password_form() {
+	$client = wicket_api_client();
+	$person = get_person();
+
+	$errors = [];
+	if (!empty($_POST)):
+		// UPDATE PASSWORD
+		// ----------------------------------------
+		$current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
+		$password = isset($_POST['password']) ? $_POST['password'] : '';
+		$password_confirmation = isset($_POST['password_confirmation']) ? $_POST['password_confirmation'] : '';
+
+		if ($current_password == '') {
+			$current_pass_blank = new stdClass;
+			$current_pass_blank->meta->field = 'user.current_password';
+			$current_pass_blank->title = __("can't be blank");
+			$errors[] = $current_pass_blank;
+		}
+		if ($password == '') {
+			$pass_blank = new stdClass;
+			$pass_blank->meta->field = 'user.password';
+			$pass_blank->title = __("can't be blank");
+			$errors[] = $pass_blank;
+		}
+		if ($password_confirmation == '') {
+			$confirm_pass_blank = new stdClass;
+			$confirm_pass_blank->meta->field = 'user.password_confirmation';
+			$confirm_pass_blank->title = __("can't be blank");
+			$errors[] = $confirm_pass_blank;
+		}
+		if ($password_confirmation != $password) {
+			$pass_blank = new stdClass;
+			$pass_blank->meta = (object)['field' => 'user.password'];
+			$pass_blank->title = __(" - Passwords do not match");
+			$errors[] = $pass_blank;
+		}
+		$_SESSION['wicket_password_form_errors'] = $errors;
+
+		// don't send anything if errors
+		if (empty($errors)) {
+			$update_user = new Wicket\Entities\People(['user' => ['current_password' => $current_password,
+																														'password' => $password,
+																														'password_confirmation' => $password_confirmation
+																													 ]
+																								]);
+			$update_user->id = $person->id;
+			$update_user->type = $person->type;
+
+			try {
+				$client->people->update($update_user);
+			} catch (Exception $e) {
+				$_SESSION['wicket_password_form_errors'] = json_decode($e->getResponse()->getBody())->errors;
+			}
+			// redirect here if there was updates made to reload person info and prevent form re-submission
+			if (empty($_SESSION['wicket_password_form_errors'])) {
+				header('Location: '.strtok($_SERVER["REQUEST_URI"],'?').'?success');
+				die;
+			}
+		}
+	endif;
+}
+add_action('init', 'process_wicket_password_form');
+
+
+
 // The widget class
 // http://www.wpexplorer.com/create-widget-plugin-wordpress
 class wicket_update_password extends WP_Widget {
@@ -27,82 +92,25 @@ class wicket_update_password extends WP_Widget {
 	}
 
 	// Display the widget
-	public function widget( $args, $instance )
+	public function widget($args, $instance)
 	{
-		$this->process_form();
 		$this->build_form();
-	}
-
-	private function process_form()
-	{
-		$client = wicket_api_client();
-		$person = get_person();
-
-		$errors = [];
-		if (!empty($_POST)):
-		  // UPDATE PASSWORD
-		  // ----------------------------------------
-		  $current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
-		  $password = isset($_POST['password']) ? $_POST['password'] : '';
-		  $password_confirmation = isset($_POST['password_confirmation']) ? $_POST['password_confirmation'] : '';
-
-		  if ($current_password == '') {
-		    $current_pass_blank = new stdClass;
-		    $current_pass_blank->meta->field = 'user.current_password';
-		    $current_pass_blank->title = __("can't be blank");
-		    $errors[] = $current_pass_blank;
-		  }
-		  if ($password == '') {
-		    $pass_blank = new stdClass;
-		    $pass_blank->meta->field = 'user.password';
-		    $pass_blank->title = __("can't be blank");
-		    $errors[] = $pass_blank;
-		  }
-		  if ($password_confirmation == '') {
-		    $confirm_pass_blank = new stdClass;
-		    $confirm_pass_blank->meta->field = 'user.password_confirmation';
-		    $confirm_pass_blank->title = __("can't be blank");
-		    $errors[] = $confirm_pass_blank;
-		  }
-			$this->errors = $errors;
-
-		  // don't send anything if fields are empty
-		  if (empty($errors)) {
-		    $update_user = new Wicket\Entities\People(['user' => ['current_password' => $current_password,
-		                                                          'password' => $password,
-		                                                          'password_confirmation' => $password_confirmation
-		                                                         ]
-		                                              ]);
-		    $update_user->id = $person->id;
-		    $update_user->type = $person->type;
-
-		    try {
-		      $client->people->update($update_user);
-		    } catch (Exception $e) {
-					$this->errors = json_decode($e->getResponse()->getBody())->errors;
-		    }
-		    // redirect here if there was updates made to reload person info and prevent form re-submission
-		    if (empty($this->errors)) {
-					echo "<script>window.location.replace('".strtok($_SERVER["REQUEST_URI"],'?').'?success'."');</script>";
-		    }
-		  }
-		endif;
 	}
 
 	private function build_form()
 	{
 		?>
-		<?php if ($this->errors):?>
+		<?php if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])):?>
 		<div class='alert alert--error alert--has-icon'>
 			<div class='alert__icon alert__panel-heading icon-right'>
 				<span class='fa fa-exclamation-circle' aria-hidden='true'></span>
-				<?php printf( _n( 'The form could not be submitted because 1 error was found', 'The form could not be submitted because %s errors were found', count($this->errors), 'sassquatch' ), number_format_i18n(count($this->errors))); ?>
+				<?php printf( _n( 'The form could not be submitted because 1 error was found', 'The form could not be submitted because %s errors were found', count($_SESSION['wicket_password_form_errors']), 'sassquatch' ), number_format_i18n(count($_SESSION['wicket_password_form_errors']))); ?>
 			</div>
 			<div class="alert__message">
 				<?php
 				$counter = 1;
 				echo "<ul>";
-				foreach ($this->errors as $key => $error) {
+				foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 					if ($error->meta->field == 'user.current_password') {
 						$prefix = __("Current Password").' ';
 						printf(__("<li><a href='#current_password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
@@ -131,8 +139,8 @@ class wicket_update_password extends WP_Widget {
 			<label class="form__label" for="current_password"><?php _e('Current password') ?>
 				<span class="required">*</span>
 				<?php
-				if ($this->errors) {
-					foreach ($this->errors as $key => $error) {
+				if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])) {
+					foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 						if (isset($error->meta->field) && $error->meta->field == 'user.current_password') {
 							echo "<span class='error'>".__('Current password')." {$error->title}</span>";
 							$current_password_err = true;
@@ -146,8 +154,8 @@ class wicket_update_password extends WP_Widget {
 			<label class="form__label" for="password"><?php _e('New password') ?>
 				<span class="required">*</span>
 				<?php
-				if ($this->errors) {
-					foreach ($this->errors as $key => $error) {
+				if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])) {
+					foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 						if (isset($error->meta->field) && $error->meta->field == 'user.password') {
 							echo "<span class='error'>".__('New password')." {$error->title}</span>";
 							$password_err = true;
@@ -162,8 +170,8 @@ class wicket_update_password extends WP_Widget {
 			<label class="form__label" for="password_confirmation"><?php _e('Confirm new password') ?>
 				<span class="required">*</span>
 				<?php
-				if ($this->errors) {
-					foreach ($this->errors as $key => $error) {
+				if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])) {
+					foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 						if (isset($error->meta->field) && $error->meta->field == 'user.password_confirmation') {
 							echo "<span class='error'>".__('Confirm password')." {$error->title}</span>";
 							$password_confirm_err = true;
@@ -180,6 +188,8 @@ class wicket_update_password extends WP_Widget {
 	}
 
 }
+
+
 
 // Register the widget
 function register_custom_widget_wicket_update_password() {
