@@ -23,11 +23,8 @@ add_action('wp_cassify_before_auth_user_wordpress', 'custom_action_before_auth_u
 function sync_wicket_data() {
   // if they're logged in via CAS...
   if (isset($_SESSION['personUuid'])) {
-    // connect to the wicket api and get the current person
-    $wicket_settings = get_wicket_settings();
-    $client = new Client($app_key = '', $wicket_settings['jwt'], $wicket_settings['api_endpoint']);
-    $client->authorize($_SESSION['personUuid']);
-    $person = $client->people->fetch($_SESSION['personUuid']);
+    $client = wicket_api_client();
+  	$person = get_person();
 
     $user = wp_get_current_user();
     // first remove all existing roles
