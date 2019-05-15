@@ -93,6 +93,11 @@ class wicket_update_password extends WP_Widget {
 	}
 
 	public function form( $instance ) {
+		return $instance;
+	}
+
+	public function update( $new_instance, $old_instance ) {
+		return $old_instance;
 	}
 
 	// Display the widget
@@ -100,7 +105,6 @@ class wicket_update_password extends WP_Widget {
 	{
 		$this->build_form();
 	}
-
 
 	private function build_form()
 	{
