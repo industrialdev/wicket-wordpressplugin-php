@@ -63,6 +63,7 @@ function process_wicket_password_form() {
 			}
 			// redirect here if there was updates made to reload person info and prevent form re-submission
 			if (empty($_SESSION['wicket_password_form_errors'])) {
+				unset($_SESSION['wicket_password_form_errors']);
 				header('Location: '.strtok($_SERVER["REQUEST_URI"],'?').'?success');
 				die;
 			}
