@@ -39,6 +39,9 @@ function wicket_api_client() {
         // No library available!
         return FALSE;
       }
+      if (!isset($_SESSION['personUuid'])) {
+        return FALSE;
+      }
 
       // connect to the wicket api and get the current person
       $wicket_settings = get_wicket_settings();
