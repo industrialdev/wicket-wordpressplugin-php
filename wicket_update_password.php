@@ -111,35 +111,31 @@ class wicket_update_password extends WP_Widget {
 		?>
 		<?php if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])):?>
 		<div class='alert alert--error'>
-			<div class='alert__icon alert__panel-heading icon-right'>
-				<?php printf( _n( 'The form could not be submitted because 1 error was found', 'The form could not be submitted because %s errors were found', count($_SESSION['wicket_password_form_errors']), 'sassquatch' ), number_format_i18n(count($_SESSION['wicket_password_form_errors']))); ?>
-			</div>
-			<div class="alert__message">
-				<?php
-				$counter = 1;
-				echo "<ul>";
-				foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
-					if ($error->meta->field == 'user.current_password') {
-						$prefix = __("Current Password").' ';
-						printf(__("<li><a href='#current_password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
-					}
-					if ($error->meta->field == 'user.password') {
-						$prefix = __("New Password").' ';
-						printf(__("<li><a href='#password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
-					}
-					if ($error->meta->field == 'user.password_confirmation') {
-						$prefix = __("Confirm Password").' ';
-						printf(__("<li><a href='#password_confirmation'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
-					}
-					$counter++;
+			<p><?php printf( _n( 'The form could not be submitted because 1 error was found', 'The form could not be submitted because %s errors were found', count($_SESSION['wicket_password_form_errors']), 'sassquatch' ), number_format_i18n(count($_SESSION['wicket_password_form_errors']))); ?></p>
+			<?php
+			$counter = 1;
+			echo "<ul>";
+			foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
+				if ($error->meta->field == 'user.current_password') {
+					$prefix = __("Current Password").' ';
+					printf(__("<li><a href='#current_password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
 				}
-				echo "</ul>";
-				?>
-			</div>
+				if ($error->meta->field == 'user.password') {
+					$prefix = __("New Password").' ';
+					printf(__("<li><a href='#password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
+				}
+				if ($error->meta->field == 'user.password_confirmation') {
+					$prefix = __("Confirm Password").' ';
+					printf(__("<li><a href='#password_confirmation'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
+				}
+				$counter++;
+			}
+			echo "</ul>";
+			?>
 		</div>
 		<?php elseif(isset($_GET['success'])): ?>
 			<div class='alert alert--success'>
-			<?php _e("Successfully Updated"); ?>
+				<p><?php _e("Successfully Updated"); ?></p>
 			</div>
 		<?php endif; ?>
 
