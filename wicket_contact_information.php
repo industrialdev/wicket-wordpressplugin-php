@@ -39,8 +39,8 @@ class wicket_contact_information extends WP_Widget {
 		$client = wicket_api_client_current_user();
 		$wicket_settings = get_wicket_settings();
 		$wicket_admin = $wicket_settings['wicket_admin'] ? $wicket_settings['wicket_admin'].'/dist/widgets.js' : null;
-		$access_token = $client->getAccessToken();
-		$api_root = rtrim($client->getApiEndpoint(), '/');
+		$access_token = $client ? $client->getAccessToken() : '' ;
+		$api_root = $client ? rtrim($client->getApiEndpoint(), '/') : '' ;
 		$language = strtok(get_bloginfo("language"), '-');
 		$person_id = wicket_current_person_uuid();
 
