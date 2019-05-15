@@ -24,7 +24,7 @@ function sync_wicket_data() {
   // if they're logged in via CAS...
   if (isset($_SESSION['personUuid'])) {
     $client = wicket_api_client();
-  	$person = get_person();
+  	$person = wicket_current_person();
 
     $user = wp_get_current_user();
     // first remove all existing roles

@@ -36,7 +36,7 @@ function wicket_api_client() {
   if (is_null($client)) {
     try {
       if (!class_exists('\Wicket\Client')) {
-        // No library available!
+        // No SDK available!
         return FALSE;
       }
       if (!isset($_SESSION['personUuid'])) {
@@ -60,7 +60,23 @@ function wicket_api_client() {
   return $client;
 }
 
-function get_person_id(){
+function wicket_api_client_current_user() {
+  $client = wicket_api_client();
+
+  if ($client) {
+    $person_id = wicket_current_person_uuid();
+
+    if ($person_id) {
+      $client->authorize($person_id);
+    } else {
+      $client = null;
+    }
+  }
+
+  return $client;
+}
+
+function wicket_current_person_uuid(){
   // get the SDK client from the wicket module.
   if (function_exists('wicket_api_client')) {
     $person_id = isset($_SESSION['personUuid']) ? $_SESSION['personUuid'] : '';
@@ -68,10 +84,10 @@ function get_person_id(){
   }
 }
 
-function get_person(){
+function wicket_current_person(){
   static $person = null;
   if(is_null($person)) {
-    $person_id = get_person_id();
+    $person_id = wicket_current_person_uuid();
     if ($person_id) {
       $client = wicket_api_client();
       $person = $client->people->fetch($person_id);
@@ -84,13 +100,13 @@ function get_person(){
 /**
  * Gets all people from wicket
  */
-function get_people(){
+function wicket_get_all_people(){
   $client = wicket_api_client();
   $person = $client->people->all();
   return $person;
 }
 
-function get_person_by_id($uuid){
+function wicket_get_person_by_id($uuid){
   static $person = null;
   if(is_null($person)) {
     if ($uuid) {
@@ -102,7 +118,7 @@ function get_person_by_id($uuid){
   return $person;
 }
 
-function get_address($id){
+function wicket_get_address($id){
   static $address = null;
   if(is_null($address)) {
     if ($id) {
@@ -114,7 +130,7 @@ function get_address($id){
   return $address;
 }
 
-function get_interval($id){
+function wicket_get_interval($id){
   static $interval = null;
   if(is_null($interval)) {
     if ($id) {
@@ -130,22 +146,22 @@ function get_interval($id){
   return $interval;
 }
 
-function is_member(){
+function wicket_is_member(){
   static $has_membership = null;
   if(is_null($has_membership)) {
-    $person = get_person();
+    $person = wicket_current_person();
     $roles = $person->role_names;
     $has_membership = in_array('member', $roles);
   }
   return $has_membership;
 }
 
-function person_name(){
-  $person = get_person();
+function wicket_person_name(){
+  $person = wicket_current_person();
   return $person->given_name.' '.$person->family_name;
 }
 
-function get_order($uuid){
+function wicket_get_order($uuid){
   $client = wicket_api_client();
   $order = $client->orders->fetch($uuid); // uuid of the order
   return $order;

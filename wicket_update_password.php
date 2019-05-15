@@ -10,7 +10,7 @@ Author: Industrial
 
 function process_wicket_password_form() {
 	$client = wicket_api_client();
-	$person = get_person();
+	$person = wicket_current_person();
 
 	$errors = [];
 	if (isset($_POST['current_password'])):
