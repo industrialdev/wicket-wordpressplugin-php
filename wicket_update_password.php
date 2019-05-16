@@ -92,11 +92,11 @@ class wicket_update_password extends WP_Widget {
 		);
 	}
 
-	public function form( $instance ) {
+	public function form($instance) {
 		return $instance;
 	}
 
-	public function update( $new_instance, $old_instance ) {
+	public function update($new_instance, $old_instance) {
 		return $old_instance;
 	}
 
@@ -156,7 +156,7 @@ class wicket_update_password extends WP_Widget {
 				</label>
 				<input class="form__input" <?php if (isset($current_password_err) && $current_password_err): echo "class='error_input'"; endif; ?> required type="password" id="current_password" name="current_password" value="">
 			</div>
-			
+
 			<div class="form__group">
 				<label class="form__label" for="password"><?php _e('New password') ?>
 					<span class="required">*</span>
@@ -173,7 +173,7 @@ class wicket_update_password extends WP_Widget {
 				</label>
 				<input class="form__input" <?php if (isset($password_err) && $password_err): echo "class='error_input'"; endif; ?> required type="password" name="password" id="password" value="">
 			</div>
-			
+
 			<div class="form__group">
 				<label class="form__label" for="password_confirmation"><?php _e('Confirm new password') ?>
 					<span class="required">*</span>
