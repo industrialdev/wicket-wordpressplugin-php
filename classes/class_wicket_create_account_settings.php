@@ -69,7 +69,8 @@ class wicket_create_account_settings {
         'default' => '',
         'placeholder' => '',
     		'helper' => '',
-    		'supplimental' => 'Where the user is taken once the create account form completes. Typically it defaults to /verify-account',
+    		'supplimental' => 'Where the user is taken once the create account form completes. Typically it defaults to /verify-account.
+        <br>To translate this value, go to WPML String Translation section and filter domain by "admin_texts_wicket_create_account_settings_person_creation_redirect"',
     	),
     	array(
     		'uid' => 'wicket_create_account_settings_google_captcha_key',
@@ -79,7 +80,7 @@ class wicket_create_account_settings {
         'default' => '',
         'placeholder' => '',
     		'helper' => '',
-    		'supplimental' => 'The key used to display google recaptcha. Obtain a key here https://www.google.com/recaptcha',
+    		'supplimental' => 'The key used to display google recaptcha. Obtain a key here <a href="https://www.google.com/recaptcha" target="_blank">https://www.google.com/recaptcha</a>',
     	),
     );
   	foreach($fields as $field){
