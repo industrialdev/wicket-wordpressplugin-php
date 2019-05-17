@@ -57,6 +57,11 @@ function wicket_api_client() {
   return $client;
 }
 
+/**------------------------------------------------------------------
+* Get wicket client, authorized as the current user.
+* You'll want to use this most of the time, to give context to person
+* operations as well as respect permissions on the Wicket side
+------------------------------------------------------------------*/
 function wicket_api_client_current_user() {
   $client = wicket_api_client();
 
@@ -73,6 +78,9 @@ function wicket_api_client_current_user() {
   return $client;
 }
 
+/**------------------------------------------------------------------
+* Get current person wicket personUuid
+------------------------------------------------------------------*/
 function wicket_current_person_uuid(){
   // get the SDK client from the wicket module.
   if (function_exists('wicket_api_client')) {
@@ -81,6 +89,9 @@ function wicket_current_person_uuid(){
   }
 }
 
+/**------------------------------------------------------------------
+* Get current person wicket
+------------------------------------------------------------------*/
 function wicket_current_person(){
   static $person = null;
   if(is_null($person)) {
@@ -94,15 +105,18 @@ function wicket_current_person(){
   return $person;
 }
 
-/**
- * Gets all people from wicket
- */
+/**------------------------------------------------------------------
+* Gets all people from wicket
+------------------------------------------------------------------*/
 function wicket_get_all_people(){
   $client = wicket_api_client();
   $person = $client->people->all();
   return $person;
 }
 
+/**------------------------------------------------------------------
+* Get person by UUID
+------------------------------------------------------------------*/
 function wicket_get_person_by_id($uuid){
   static $person = null;
   if(is_null($person)) {
@@ -115,6 +129,9 @@ function wicket_get_person_by_id($uuid){
   return $person;
 }
 
+/**------------------------------------------------------------------
+* Get email by id
+------------------------------------------------------------------*/
 function wicket_get_address($id){
   static $address = null;
   if(is_null($address)) {
@@ -127,6 +144,9 @@ function wicket_get_address($id){
   return $address;
 }
 
+/**------------------------------------------------------------------
+* Get Interval by id
+------------------------------------------------------------------*/
 function wicket_get_interval($id){
   static $interval = null;
   if(is_null($interval)) {
@@ -143,6 +163,9 @@ function wicket_get_interval($id){
   return $interval;
 }
 
+/**------------------------------------------------------------------
+* Check if current logged in person has the 'member' role
+------------------------------------------------------------------*/
 function wicket_is_member(){
   static $has_membership = null;
   if(is_null($has_membership)) {
@@ -153,11 +176,17 @@ function wicket_is_member(){
   return $has_membership;
 }
 
+/**------------------------------------------------------------------
+* Build firstname/lastname from person object of current user
+------------------------------------------------------------------*/
 function wicket_person_name(){
   $person = wicket_current_person();
   return $person->given_name.' '.$person->family_name;
 }
 
+/**------------------------------------------------------------------
+* Get Wicket orders for person by person UUID
+------------------------------------------------------------------*/
 function wicket_get_order($uuid){
   $client = wicket_api_client();
   $order = $client->orders->fetch($uuid); // uuid of the order
