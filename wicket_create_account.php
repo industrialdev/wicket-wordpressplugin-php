@@ -12,7 +12,6 @@ require_once('classes/class_wicket_create_account_settings.php');
 
 function process_wicket_create_account_form() {
 	$client = wicket_api_client();
-	// $person = wicket_current_person();
 
 	$errors = [];
 	if (isset($_POST['address'])){
@@ -38,7 +37,7 @@ function process_wicket_create_account_form() {
 		}
 		if ($email == '') {
 			$email_blank = new stdClass;
-			$email_blank->meta->field = 'user.address';
+			$email_blank->meta->field = 'emails.address';
 			$email_blank->title = __("can't be blank");
 			$errors[] = $email_blank;
 		}
@@ -101,7 +100,8 @@ function process_wicket_create_account_form() {
 			// redirect to a verify page if person was created
 			if (empty($_SESSION['wicket_create_account_form_errors'])) {
 				unset($_SESSION['wicket_create_account_form_errors']);
-				header('Location: /verify-account');
+				$creation_redirect_path = get_option('wicket_create_account_settings_person_creation_redirect');
+				header('Location: '.$creation_redirect_path);
 				die;
 			}
 		}
@@ -170,8 +170,8 @@ class wicket_create_account extends WP_Widget {
 					$prefix = __("Last Name").' ';
 					printf(__("<li><a href='#family_name'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
 				}
-				if ($error->meta->field == 'user.address') {
-					$prefix = __("Email").' ';
+				if ($error->meta->field == 'emails.address') {
+					$prefix = __("Email").' - ';
 					printf(__("<li><a href='#address'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
 				}
 				if ($error->meta->field == 'user.password') {
@@ -242,8 +242,8 @@ class wicket_create_account extends WP_Widget {
 					<?php
 					if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])) {
 						foreach ($_SESSION['wicket_create_account_form_errors'] as $key => $error) {
-							if (isset($error->meta->field) && $error->meta->field == 'user.address') {
-								echo "<span class='error'>".__('Email')." {$error->title}</span>";
+							if (isset($error->meta->field) && $error->meta->field == 'emails.address') {
+								echo "<span class='error'>".__('Email')." - {$error->title}</span>";
 								$address_err = true;
 							}
 						}

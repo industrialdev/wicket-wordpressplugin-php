@@ -39,15 +39,12 @@ function wicket_api_client() {
         // No SDK available!
         return FALSE;
       }
-      if (!isset($_SESSION['personUuid'])) {
-        return FALSE;
-      }
 
       // connect to the wicket api and get the current person
       $wicket_settings = get_wicket_settings();
       $client = new Client($app_key = '', $wicket_settings['jwt'], $wicket_settings['api_endpoint']);
-      $client->authorize($_SESSION['personUuid']);
-      $person = $client->people->fetch($_SESSION['personUuid']);
+      $client->authorize($wicket_settings['person_id']);
+      $person = $client->people->fetch($wicket_settings['person_id']);
 
       // test the endpoint before returning the client to ensure it's up
       $client->get($wicket_settings['api_endpoint']);
