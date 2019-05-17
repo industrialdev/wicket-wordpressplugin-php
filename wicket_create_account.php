@@ -292,7 +292,12 @@ class wicket_create_account extends WP_Widget {
 			</div>
 
 			<a name="google"></a>
-			<div class="g-recaptcha" data-sitekey="6Lerw1wUAAAAAH33okpd7zUAKQY7B2H9RHi9-yRW"></div>
+			<?php
+			$recaptcha_key = get_option('wicket_create_account_settings_google_captcha_key');
+			if ($recaptcha_key):
+			?>
+			<div class="g-recaptcha" data-sitekey="<?php echo $recaptcha_key ?>"></div>
+			<?php endif; ?>
 			<input class="button button--primary" type="submit" value="<?php _e('Submit') ?>">
 		</form>
 		<?php
@@ -307,7 +312,7 @@ function wicket_check_google_captcha(){
     return false;
   }
   $ch = curl_init();
-  $secret = "6Lerw1wUAAAAAMaVRCC5T4bTw8oHM_NqPHa8ZPdY";
+	$secret = get_option('wicket_create_account_settings_google_captcha_secret_key');
   $response = $_POST['g-recaptcha-response'];
   $remoteip = $_SERVER['REMOTE_ADDR'];
 

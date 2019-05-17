@@ -82,6 +82,16 @@ class wicket_create_account_settings {
     		'helper' => '',
     		'supplimental' => 'The key used to display google recaptcha. Obtain a key here <a href="https://www.google.com/recaptcha" target="_blank">https://www.google.com/recaptcha</a>',
     	),
+    	array(
+    		'uid' => 'wicket_create_account_settings_google_captcha_secret_key',
+    		'label' => 'Google Captcha Secret Key',
+    		'section' => 'wicket_create_account_configuration',
+    		'type' => 'text',
+        'default' => '',
+        'placeholder' => '',
+    		'helper' => '',
+    		'supplimental' => 'The secret key used to display google recaptcha. Obtain a key here <a href="https://www.google.com/recaptcha" target="_blank">https://www.google.com/recaptcha</a>',
+    	),
     );
   	foreach($fields as $field){
     	add_settings_field($field['uid'], $field['label'], array($this, 'field_callback'), 'wicket_create_account_settings_fields', $field['section'], $field);
