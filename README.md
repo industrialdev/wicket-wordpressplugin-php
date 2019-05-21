@@ -47,5 +47,5 @@ To create a modified version of this form, it is advisable to disable this plugi
 
 Also, if needing to run both the core form plugin and your custom one, the functions will need to be renamed as well.
 
-## Login link for theme
+## CAS Login link for theme
 `<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/' ?>`
