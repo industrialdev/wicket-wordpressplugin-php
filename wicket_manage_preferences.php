@@ -8,8 +8,6 @@ Description: wicket.io plugin responsible for providing a widget containing basi
 Author: Industrial
 */
 
-require_once('classes/class_wicket_create_account_settings.php');
-
 function process_wicket_preferences_form() {
 	$client = wicket_api_client();
 

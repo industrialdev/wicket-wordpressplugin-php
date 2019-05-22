@@ -15,8 +15,9 @@ function process_wicket_create_account_form() {
 
 	$errors = [];
 	if (isset($_POST['address'])){
-		// CREATE ACCOUNT
-		// ----------------------------------------
+		/**------------------------------------------------------------------
+		* Create Account
+		------------------------------------------------------------------*/
 		$first_name = isset($_POST['given_name']) ? $_POST['given_name'] : '';
 		$last_name = isset($_POST['family_name']) ? $_POST['family_name'] : '';
 		$email = isset($_POST['address']) ? $_POST['address'] : '';
@@ -97,7 +98,9 @@ function process_wicket_create_account_form() {
 		  } catch (Exception $e) {
 				$_SESSION['wicket_create_account_form_errors'] = json_decode($e->getResponse()->getBody())->errors;
 		  }
-			// redirect to a verify page if person was created
+			/**------------------------------------------------------------------
+			* Redirect to a verify page if person was created
+			------------------------------------------------------------------*/
 			if (empty($_SESSION['wicket_create_account_form_errors'])) {
 				unset($_SESSION['wicket_create_account_form_errors']);
 				$creation_redirect_path = get_option('wicket_create_account_settings_person_creation_redirect');

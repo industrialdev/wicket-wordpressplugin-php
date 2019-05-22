@@ -14,8 +14,9 @@ function process_wicket_password_form() {
 
 	$errors = [];
 	if (isset($_POST['current_password'])){
-		// UPDATE PASSWORD
-		// ----------------------------------------
+		/**------------------------------------------------------------------
+		* Update Password
+		------------------------------------------------------------------*/
 		$current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
 		$password = isset($_POST['password']) ? $_POST['password'] : '';
 		$password_confirmation = isset($_POST['password_confirmation']) ? $_POST['password_confirmation'] : '';
