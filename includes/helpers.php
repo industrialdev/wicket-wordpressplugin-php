@@ -192,3 +192,66 @@ function wicket_get_order($uuid){
   $order = $client->orders->fetch($uuid); // uuid of the order
   return $order;
 }
+
+/**------------------------------------------------------------------
+* Get all organizations from Wicket
+------------------------------------------------------------------*/
+function wicket_get_organizations(){
+  $client = wicket_api_client();
+  static $organizations = null;
+  // prepare and memoize all schemas from Wicket
+  if (is_null($organizations)) {
+    $organizations = $client->get('organizations');
+  }
+  if ($organizations) {
+    return $organizations;
+  }
+}
+
+/**------------------------------------------------------------------
+* Get all JSON Schemas from Wicket
+------------------------------------------------------------------*/
+function wicket_get_schemas(){
+  $client = wicket_api_client();
+  static $schemas = null;
+  // prepare and memoize all schemas from Wicket
+  if (is_null($schemas)) {
+    $schemas = $client->get('json_schemas');
+  }
+  if ($schemas) {
+    return $schemas;
+  }
+}
+
+/**------------------------------------------------------------------
+* Load options from a schema based
+* on a schema entry found using get_schemas()
+------------------------------------------------------------------*/
+function wicket_get_schemas_options($schema,$field){
+  $language = strtok(get_bloginfo("language"), '-');
+  $return = [];
+  // single value
+  if (isset($schema['attributes']['schema']['properties'][$field]['enum'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['properties'][$field]['enum'] as $key => $value) {
+      $return[$counter]['key'] = $value;
+      $counter++;
+    }
+  }
+  // multi-value
+  if (isset($schema['attributes']['schema']['properties'][$field]['items']['enum'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['properties'][$field]['items']['enum'] as $key => $value) {
+      $return[$counter]['key'] = $value;
+      $counter++;
+    }
+  }
+  if (isset($schema['attributes']['ui_schema'][$field]['ui:i18n']['enumNames'][$language])) {
+    $counter = 0;
+    foreach ($schema['attributes']['ui_schema'][$field]['ui:i18n']['enumNames'][$language] as $key => $value) {
+      $return[$counter]['value'] = $value;
+      $counter++;
+    }
+  }
+  return $return;
+}
