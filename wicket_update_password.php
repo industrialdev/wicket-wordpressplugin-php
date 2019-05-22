@@ -13,7 +13,7 @@ function process_wicket_password_form() {
 	$person = wicket_current_person();
 
 	$errors = [];
-	if (isset($_POST['current_password'])):
+	if (isset($_POST['current_password'])){
 		// UPDATE PASSWORD
 		// ----------------------------------------
 		$current_password = isset($_POST['current_password']) ? $_POST['current_password'] : '';
@@ -68,7 +68,9 @@ function process_wicket_password_form() {
 				die;
 			}
 		}
-	endif;
+	}else{
+		unset($_SESSION['wicket_password_form_errors']);
+	}
 }
 add_action('init', 'process_wicket_password_form');
 
