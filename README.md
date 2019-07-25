@@ -68,20 +68,20 @@ Set "Xpath query used to extract cas user id during parsing" to this:
 
 
 --------------------------------------
-Set "White List URL(s)" to this:
+Set "White List URL(s)" to this (use correct domain depending on environment):
 
 http://172.16.231.130/wp/wp-login.php;http://172.16.231.130/wp/wp-admin
 
-Alternatively, you can use this to bypass CAS:
+Alternatively, you can use this to bypass CAS (use correct domain depending on environment):
 
 http://172.16.231.130/wp/wp-login.php?wp_cassify_bypass=bypass
 
---------------------------------------
+
 ## NGINX FOR CAS
 
 change/check server_name value in nginx as the wp cassify module uses that when logging in
 
-MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16.231.130 OTHERWISE CAS LOGIN WON'T WORK
+MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16.231.130 (or correct domain in use) OTHERWISE CAS LOGIN WON'T WORK
 
 ## CAS Login link for theme
 `<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/' ?>`
