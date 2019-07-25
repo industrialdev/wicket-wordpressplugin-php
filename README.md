@@ -56,7 +56,6 @@ To create a modified version of this form, it is advisable to disable this plugi
 Also, if needing to run both the core form plugin and your custom one, the functions will need to be renamed as well.
 
 ## CAS SETUP
---------------------------------------
 Within the CAS settings, /wp/wp-admin/options-general.php?page=wp-cassify.php
 
 Make sure the "CAS Server base url" option has a training slash!
