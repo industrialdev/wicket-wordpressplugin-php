@@ -55,5 +55,35 @@ To create a modified version of this form, it is advisable to disable this plugi
 
 Also, if needing to run both the core form plugin and your custom one, the functions will need to be renamed as well.
 
+## CAS SETUP
+--------------------------------------
+Within the CAS settings, /wp/wp-admin/options-general.php?page=wp-cassify.php
+
+Make sure the "CAS Server base url" option has a training slash!
+
+https://ccua-login.staging.wicketcloud.com/
+
+--------------------------------------
+Set "Xpath query used to extract cas user id during parsing" to this:
+//cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:personUuid
+
+
+--------------------------------------
+Set "White List URL(s)" to this:
+
+http://172.16.231.130/wp/wp-login.php;http://172.16.231.130/wp/wp-admin
+
+Alternatively, you can use this to bypass CAS:
+
+http://172.16.231.130/wp/wp-login.php?wp_cassify_bypass=bypass
+
+--------------------------------------
+## NGINX FOR CAS
+
+change/check server_name value in nginx as the wp cassify module uses that when logging in
+
+MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16.231.130 OTHERWISE CAS LOGIN WON'T WORK
+
 ## CAS Login link for theme
 `<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/' ?>`
+
