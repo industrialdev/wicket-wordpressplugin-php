@@ -60,7 +60,7 @@ Within the CAS settings, /wp/wp-admin/options-general.php?page=wp-cassify.php
 
 Make sure the "CAS Server base url" option has a training slash!
 
-https://<tenant>-login.staging.wicketcloud.com/
+https://\<tenant>-login.staging.wicketcloud.com/
 
 --------------------------------------
 Set "Xpath query used to extract cas user id during parsing" to this:
