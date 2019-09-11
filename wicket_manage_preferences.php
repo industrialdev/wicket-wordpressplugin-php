@@ -9,7 +9,7 @@ Author: Industrial
 */
 
 function process_wicket_preferences_form() {
-	$client = wicket_api_client();
+	$client = wicket_api_client_current_user();
 
 	if (isset($_POST['language'])){
 		/**------------------------------------------------------------------
@@ -77,7 +77,7 @@ class wicket_preferences extends WP_Widget {
 	// Display the widget
 	public function widget($args, $instance)
 	{
-		$client = wicket_api_client();
+		$client = wicket_api_client_current_user();
 		$result = '';
 		if (!$client) {
 			// if the API isn't up, just stop here

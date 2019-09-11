@@ -9,7 +9,7 @@ Author: Industrial
 */
 
 function process_wicket_password_form() {
-	$client = wicket_api_client();
+	$client = wicket_api_client_current_user();
 	$person = wicket_current_person();
 
 	$errors = [];
