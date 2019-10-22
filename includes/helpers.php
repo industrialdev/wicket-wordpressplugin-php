@@ -199,12 +199,28 @@ function wicket_get_order($uuid){
 function wicket_get_organizations(){
   $client = wicket_api_client();
   static $organizations = null;
-  // prepare and memoize all schemas from Wicket
+  // prepare and memoize all organizations from Wicket
   if (is_null($organizations)) {
     $organizations = $client->get('organizations');
   }
   if ($organizations) {
     return $organizations;
+  }
+}
+
+/**------------------------------------------------------------------
+* Get all "connections" (relationships) of a Wicket person
+------------------------------------------------------------------*/
+function wicket_get_person_connections(){
+  $client = wicket_api_client();
+  $person = wicket_current_person();
+  static $connections = null;
+  // prepare and memoize all connections from Wicket
+  if (is_null($connections)) {
+    $connections = $client->get('people/'.$person->id.'/connections');
+  }
+  if ($connections) {
+    return $connections;
   }
 }
 
