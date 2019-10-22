@@ -23,7 +23,7 @@ add_action('wp_cassify_before_auth_user_wordpress', 'custom_action_before_auth_u
 function sync_wicket_data() {
   // if they're logged in via CAS...
   if (isset($_SESSION['personUuid'])) {
-    $client = wicket_api_client();
+    $client = wicket_api_client_current_user();
   	$person = wicket_current_person();
 
     $user = wp_get_current_user();
