@@ -213,11 +213,30 @@ function wicket_get_organizations(){
 ------------------------------------------------------------------*/
 function wicket_get_person_connections(){
   $client = wicket_api_client();
-  $person = wicket_current_person();
+  $person_id = wicket_current_person_uuid();
+  if ($person_id) {
+    $client = wicket_api_client();
+    $person = $client->people->fetch($person_id);
+  }
   static $connections = null;
   // prepare and memoize all connections from Wicket
   if (is_null($connections)) {
     $connections = $client->get('people/'.$person->id.'/connections');
+  }
+  if ($connections) {
+    return $connections;
+  }
+}
+
+/**------------------------------------------------------------------
+* Get all "connections" (relationships) of a Wicket person by UUID
+------------------------------------------------------------------*/
+function wicket_get_person_connections_by_id($uuid){
+  $client = wicket_api_client();
+  static $connections = null;
+  // prepare and memoize all connections from Wicket
+  if (is_null($connections)) {
+    $connections = $client->get('people/'.$uuid.'/connections');
   }
   if ($connections) {
     return $connections;
