@@ -11,10 +11,11 @@ Author: Industrial
 require_once('classes/class_wicket_create_account_settings.php');
 
 function process_wicket_create_account_form() {
-	$client = wicket_api_client();
-
 	$errors = [];
-	if (isset($_POST['address'])){
+	if (isset($_POST['wicket_create_account'])){
+		if(!session_id()) session_start();
+				
+		$client = wicket_api_client();
 		/**------------------------------------------------------------------
 		* Create Account
 		------------------------------------------------------------------*/
@@ -108,7 +109,7 @@ function process_wicket_create_account_form() {
 				die;
 			}
 		}
-	}else{
+	} else if(isset($_SESSION['wicket_create_account_form_errors'])) {
 		unset($_SESSION['wicket_create_account_form_errors']);
 	}
 }
@@ -301,6 +302,7 @@ class wicket_create_account extends WP_Widget {
 			?>
 			<div class="g-recaptcha" data-sitekey="<?php echo $recaptcha_key ?>"></div>
 			<?php endif; ?>
+			<input type="hidden" name="wicket_create_account" value="<?php echo $this->id_base . '-' . $this->number; ?>" />
 			<input class="button button--primary" type="submit" value="<?php _e('Submit') ?>">
 		</form>
 		<?php

@@ -9,9 +9,11 @@ Author: Industrial
 */
 
 function process_wicket_preferences_form() {
-	$client = wicket_api_client_current_user();
+	if (isset($_POST['wicket_preferences'])){
+		if(!session_id()) session_start();
+		
+		$client = wicket_api_client_current_user();
 
-	if (isset($_POST['language'])){
 		/**------------------------------------------------------------------
 		* Process preference data
 		------------------------------------------------------------------*/
@@ -40,7 +42,7 @@ function process_wicket_preferences_form() {
 			header('Location: '.strtok($_SERVER["REQUEST_URI"],'?').'?success');
 			die;
 		}
-	}else{
+	} else if (isset($_SESSION['wicket_preferences_form_errors'])) {
 		unset($_SESSION['wicket_preferences_form_errors']);
 	}
 }
@@ -130,6 +132,7 @@ class wicket_preferences extends WP_Widget {
 				</div>
 			</div>
 
+			<input type="hidden" name="wicket_preferences" value="<?php echo $this->id_base . '-' . $this->number; ?>" />
 			<input class="button button--primary" type="submit" value="<?php _e('Update Preferences') ?>">
 		</form>
 		<?php
