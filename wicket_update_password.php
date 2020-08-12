@@ -9,11 +9,13 @@ Author: Industrial
 */
 
 function process_wicket_password_form() {
-	$client = wicket_api_client();
-	$person = wicket_current_person();
-
 	$errors = [];
-	if (isset($_POST['current_password'])){
+	if (isset($_POST['wicket_update_password'])){
+		if(!session_id()) session_start();
+		
+		$client = wicket_api_client_current_user();
+		$person = wicket_current_person();
+
 		/**------------------------------------------------------------------
 		* Update Password
 		------------------------------------------------------------------*/
@@ -69,7 +71,7 @@ function process_wicket_password_form() {
 				die;
 			}
 		}
-	}else{
+	} else if(isset($_SESSION['wicket_password_form_errors'])) {
 		unset($_SESSION['wicket_password_form_errors']);
 	}
 }
@@ -194,6 +196,7 @@ class wicket_update_password extends WP_Widget {
 				<input class="form__input" <?php if (isset($password_confirm_err) && $password_confirm_err): echo "class='error_input'"; endif; ?> type="password" id="password_confirmation" name="password_confirmation" value="">
 			</div>
 
+		  <input type="hidden" name="wicket_update_password" value="<?php echo $this->id_base . '-' . $this->number; ?>" />
 			<input class="button button--primary" type="submit" value="<?php _e('Change password') ?>">
 		</form>
 		<?php

@@ -97,7 +97,7 @@ function wicket_current_person(){
   if(is_null($person)) {
     $person_id = wicket_current_person_uuid();
     if ($person_id) {
-      $client = wicket_api_client();
+      $client = wicket_api_client_current_user();
       $person = $client->people->fetch($person_id);
       return $person;
     }

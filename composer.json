@@ -1,0 +1,7 @@
+{
+    "name": "industrialdev/wicket-wordpressplugin-php",
+    "description": "Base Wicket Plugin for WordPress",
+    "require": {
+      "industrialdev/wicket-sdk-php": "dev-master"
+    }
+}
