@@ -77,9 +77,18 @@ function process_wicket_create_account_form() {
 			// get parent org from admin settings to associate this person to
 			$wicket_settings = get_wicket_settings();
 			$parent_org = $wicket_settings['parent_org'];
-		  $org = $client->organizations->all()->first(function ($item) use ($parent_org) {
-		    return $item->alternate_name == $parent_org;
-		  });
+			$args = [
+				'query' => [
+					'filter' => [
+						'alternate_name_en_eq' => $parent_org
+					],
+					'page' => [
+						'number' => 1,
+						'size' => 1,
+					]
+				]
+			];
+			$org = $client->get('organizations', $args);
 
 		  $user = [
 				'password'              => $_POST['password'],
@@ -95,7 +104,7 @@ function process_wicket_create_account_form() {
 		  $person->attach($email);
 
 		  try {
-		    $new_person = $client->people->create($person, (object)$org);
+		    $new_person = $client->people->create($person, (object)$org['data'][0]);
 		  } catch (Exception $e) {
 				$_SESSION['wicket_create_account_form_errors'] = json_decode($e->getResponse()->getBody())->errors;
 		  }
@@ -216,7 +225,7 @@ class wicket_create_account extends WP_Widget {
 					}
 					?>
 				</label>
-				<input class="form__input" <?php if (isset($given_name_err) && $given_name_err): echo "class='error_input'"; endif; ?> required type="given_name" id="given_name" name="given_name" value="<?php echo isset($_POST['given_name']) ? $_POST['given_name'] : '' ?>">
+				<input class="form__input" <?php if (isset($given_name_err) && $given_name_err): echo "class='error_input'"; endif; ?> required type="text" id="given_name" name="given_name" value="<?php echo isset($_POST['given_name']) ? $_POST['given_name'] : '' ?>">
 			</div>
 
 
@@ -235,7 +244,7 @@ class wicket_create_account extends WP_Widget {
 					}
 					?>
 				</label>
-				<input class="form__input" <?php if (isset($last_name_err) && $last_name_err): echo "class='error_input'"; endif; ?> required type="family_name" id="family_name" name="family_name" value="<?php echo isset($_POST['family_name']) ? $_POST['family_name'] : '' ?>">
+				<input class="form__input" <?php if (isset($last_name_err) && $last_name_err): echo "class='error_input'"; endif; ?> required type="text" id="family_name" name="family_name" value="<?php echo isset($_POST['family_name']) ? $_POST['family_name'] : '' ?>">
 			</div>
 
 
@@ -254,7 +263,7 @@ class wicket_create_account extends WP_Widget {
 					}
 					?>
 				</label>
-				<input class="form__input" <?php if (isset($address_err) && $address_err): echo "class='error_input'"; endif; ?> required type="address" id="address" name="address" value="<?php echo isset($_POST['address']) ? $_POST['address'] : '' ?>">
+				<input class="form__input" <?php if (isset($address_err) && $address_err): echo "class='error_input'"; endif; ?> required type="text" id="address" name="address" value="<?php echo isset($_POST['address']) ? $_POST['address'] : '' ?>">
 			</div>
 
 
