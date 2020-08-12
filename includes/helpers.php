@@ -199,12 +199,47 @@ function wicket_get_order($uuid){
 function wicket_get_organizations(){
   $client = wicket_api_client();
   static $organizations = null;
-  // prepare and memoize all schemas from Wicket
+  // prepare and memoize all organizations from Wicket
   if (is_null($organizations)) {
     $organizations = $client->get('organizations');
   }
   if ($organizations) {
     return $organizations;
+  }
+}
+
+/**------------------------------------------------------------------
+* Get all "connections" (relationships) of a Wicket person
+------------------------------------------------------------------*/
+function wicket_get_person_connections(){
+  $client = wicket_api_client();
+  $person_id = wicket_current_person_uuid();
+  if ($person_id) {
+    $client = wicket_api_client();
+    $person = $client->people->fetch($person_id);
+  }
+  static $connections = null;
+  // prepare and memoize all connections from Wicket
+  if (is_null($connections)) {
+    $connections = $client->get('people/'.$person->id.'/connections');
+  }
+  if ($connections) {
+    return $connections;
+  }
+}
+
+/**------------------------------------------------------------------
+* Get all "connections" (relationships) of a Wicket person by UUID
+------------------------------------------------------------------*/
+function wicket_get_person_connections_by_id($uuid){
+  $client = wicket_api_client();
+  static $connections = null;
+  // prepare and memoize all connections from Wicket
+  if (is_null($connections)) {
+    $connections = $client->get('people/'.$uuid.'/connections');
+  }
+  if ($connections) {
+    return $connections;
   }
 }
 
@@ -225,7 +260,7 @@ function wicket_get_schemas(){
 
 /**------------------------------------------------------------------
 * Load options from a schema based
-* on a schema entry found using get_schemas()
+* on a schema entry found using wicket_get_schemas()
 ------------------------------------------------------------------*/
 function wicket_get_schemas_options($schema,$field){
   $language = strtok(get_bloginfo("language"), '-');
@@ -246,10 +281,19 @@ function wicket_get_schemas_options($schema,$field){
       $counter++;
     }
   }
+  // get label values from ui_schema
   if (isset($schema['attributes']['ui_schema'][$field]['ui:i18n']['enumNames'][$language])) {
     $counter = 0;
     foreach ($schema['attributes']['ui_schema'][$field]['ui:i18n']['enumNames'][$language] as $key => $value) {
       $return[$counter]['value'] = $value;
+      $counter++;
+    }
+  }
+  // if field is using ui_schema, get keys
+  if (isset($schema['attributes']['schema']['oneOf'][0]['properties'][$field]['items']['enum'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['oneOf'][0]['properties'][$field]['items']['enum'] as $key => $value) {
+      $return[$counter]['key'] = $value;
       $counter++;
     }
   }
