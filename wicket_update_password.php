@@ -123,15 +123,15 @@ class wicket_update_password extends WP_Widget {
 			foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 				if ($error->meta->field == 'user.current_password') {
 					$prefix = __("Current Password").' ';
-					printf(__("<li><a href='#current_password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
+					printf(__("<li><a href='#current_password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.__($error->title));
 				}
 				if ($error->meta->field == 'user.password') {
 					$prefix = __("New Password").' ';
-					printf(__("<li><a href='#password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
+					printf(__("<li><a href='#password'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.__($error->title));
 				}
 				if ($error->meta->field == 'user.password_confirmation') {
 					$prefix = __("Confirm Password").' ';
-					printf(__("<li><a href='#password_confirmation'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.$error->title);
+					printf(__("<li><a href='#password_confirmation'><strong>%s</strong> %s</a></li>", 'sassquatch'), 'Error: '.$counter, $prefix.__($error->title));
 				}
 				$counter++;
 			}
@@ -152,7 +152,7 @@ class wicket_update_password extends WP_Widget {
 					if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])) {
 						foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 							if (isset($error->meta->field) && $error->meta->field == 'user.current_password') {
-								echo "<span class='error'>".__('Current password')." {$error->title}</span>";
+								echo "<span class='error'>".__('Current password').' '.__($error->title)."</span>";
 								$current_password_err = true;
 							}
 						}
@@ -169,7 +169,7 @@ class wicket_update_password extends WP_Widget {
 					if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])) {
 						foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 							if (isset($error->meta->field) && $error->meta->field == 'user.password') {
-								echo "<span class='error'>".__('New password')." {$error->title}</span>";
+								echo "<span class='error'>".__('New password').' '.__($error->title)."</span>";
 								$password_err = true;
 							}
 						}
@@ -186,7 +186,7 @@ class wicket_update_password extends WP_Widget {
 					if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])) {
 						foreach ($_SESSION['wicket_password_form_errors'] as $key => $error) {
 							if (isset($error->meta->field) && $error->meta->field == 'user.password_confirmation') {
-								echo "<span class='error'>".__('Confirm password')." {$error->title}</span>";
+								echo "<span class='error'>".__('Confirm password').' '.__($error->title)."</span>";
 								$password_confirm_err = true;
 							}
 						}
