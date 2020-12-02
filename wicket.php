@@ -8,7 +8,6 @@ Description: Base Wicket Plugin
 Author: Industrial
 */
 
-require_once('vendor/autoload.php');
 require_once('classes/class_wicket_settings.php');
 require_once('includes/helpers.php');
 require_once('includes/assets.php');
