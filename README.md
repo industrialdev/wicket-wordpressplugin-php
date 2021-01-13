@@ -18,7 +18,7 @@ under repositories, add this:
 then run composer update to get the wicket sdk
 
 ## Important Note
-This module is common to all installs of Wordpress using Wicket. There is usually, for now, a lib/wicket.php within the theme with logic specific to each client, but any code changes to this module should be able to be made to all clients that use this module.
+This plugin is common to all installs of Wordpress using Wicket. There is usually, for now, a lib/wicket.php within the theme with logic specific to each client, but any code changes to this module should be able to be made to all clients that use this module.
 
 # Enable plugin(s)
 
