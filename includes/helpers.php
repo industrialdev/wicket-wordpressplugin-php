@@ -262,9 +262,14 @@ function wicket_get_schemas(){
 * Load options from a schema based
 * on a schema entry found using wicket_get_schemas()
 ------------------------------------------------------------------*/
-function wicket_get_schemas_options($schema,$field){
+function wicket_get_schemas_options($schema, $field, $sub_field){
   $language = strtok(get_bloginfo("language"), '-');
   $return = [];
+
+  // -----------------------------
+  // GET VALUES
+  // -----------------------------
+
   // single value
   if (isset($schema['attributes']['schema']['properties'][$field]['enum'])) {
     $counter = 0;
@@ -281,6 +286,27 @@ function wicket_get_schemas_options($schema,$field){
       $counter++;
     }
   }
+  // if field is using ui_schema, get keys
+  if (isset($schema['attributes']['schema']['oneOf'][0]['properties'][$field]['items']['enum'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['oneOf'][0]['properties'][$field]['items']['enum'] as $key => $value) {
+      $return[$counter]['key'] = $value;
+      $counter++;
+    }
+  }
+  // if field is using a repeater type field with 'move up/down and remove rows', get keys
+  if (isset($schema['attributes']['schema']['properties'][$field]['items']['properties'][$sub_field]['enum'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['properties'][$field]['items']['properties'][$sub_field]['enum'] as $key => $value) {
+      $return[$counter]['key'] = $value;
+      $counter++;
+    }
+  }
+
+  // -----------------------------
+  // GET LABELS
+  // -----------------------------
+
   // get label values from ui_schema
   if (isset($schema['attributes']['ui_schema'][$field]['ui:i18n']['enumNames'][$language])) {
     $counter = 0;
@@ -289,11 +315,11 @@ function wicket_get_schemas_options($schema,$field){
       $counter++;
     }
   }
-  // if field is using ui_schema, get keys
-  if (isset($schema['attributes']['schema']['oneOf'][0]['properties'][$field]['items']['enum'])) {
+  // get label values from ui_schema
+  if (isset($schema['attributes']['ui_schema'][$field]['items'][$sub_field]['ui:i18n']['enumNames'][$language])) {
     $counter = 0;
-    foreach ($schema['attributes']['schema']['oneOf'][0]['properties'][$field]['items']['enum'] as $key => $value) {
-      $return[$counter]['key'] = $value;
+    foreach ($schema['attributes']['ui_schema'][$field]['items'][$sub_field]['ui:i18n']['enumNames'][$language] as $key => $value) {
+      $return[$counter]['value'] = $value;
       $counter++;
     }
   }
