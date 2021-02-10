@@ -66,6 +66,10 @@ Make sure the "CAS Server base url" option has a training slash!
 https://\<tenant>-login.staging.wicketcloud.com/
 
 --------------------------------------
+
+Check "Create user if not exist	" and "Enable SLO (Single Log Out)"
+
+--------------------------------------
 Set "Xpath query used to extract cas user id during parsing" to this:
 
 ```
