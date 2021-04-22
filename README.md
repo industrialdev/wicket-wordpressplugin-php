@@ -78,7 +78,7 @@ Set "Xpath query used to extract cas user id during parsing" to this:
 
 
 --------------------------------------
-Set "White List URL(s)" to this (use correct domain depending on environment):
+Set "White List URL(s)" to this (include staging and prod domains as well for those paths):
 
 ```
 http://172.16.231.130/wp/wp-login.php;http://172.16.231.130/wp/wp-admin
