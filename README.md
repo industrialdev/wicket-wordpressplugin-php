@@ -70,6 +70,10 @@ https://\<tenant>-login.staging.wicketcloud.com/
 Check "Create user if not exist	" and "Enable SLO (Single Log Out)"
 
 --------------------------------------
+
+Set "Name of the service validate servlet (Default : serviceValidate)" to be "p3/serviceValidate"
+
+--------------------------------------
 Set "Xpath query used to extract cas user id during parsing" to this:
 
 ```
