@@ -2,6 +2,8 @@
 
 Download this repo in to the plugins directory of a Wordpress website.
 
+Make sure the plugin folder is called "wicket-wordpressplugin-php"
+
 Add this to the root composer.json file (in a bedrock configured wordpress site):
 
 under require:
