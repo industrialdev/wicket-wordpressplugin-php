@@ -221,7 +221,7 @@ function wicket_get_person_connections(){
   static $connections = null;
   // prepare and memoize all connections from Wicket
   if (is_null($connections)) {
-    $connections = $client->get('people/'.$person->id.'/connections');
+    $connections = $client->get('people/'.$person->id.'/connections?filter%5Bconnection_type_eq%5D=all&sort=-created_at');
   }
   if ($connections) {
     return $connections;
@@ -236,7 +236,7 @@ function wicket_get_person_connections_by_id($uuid){
   static $connections = null;
   // prepare and memoize all connections from Wicket
   if (is_null($connections)) {
-    $connections = $client->get('people/'.$uuid.'/connections');
+    $connections = $client->get('people/'.$uuid.'/connections?filter%5Bconnection_type_eq%5D=all&sort=-created_at');
   }
   if ($connections) {
     return $connections;
@@ -324,4 +324,481 @@ function wicket_get_schemas_options($schema, $field, $sub_field){
     }
   }
   return $return;
+}
+
+/**------------------------------------------------------------------
+ * Gets all the options for a field within a json schema
+ * Parent field is the accordion in wicket in additional info
+ * Field is a field within the accordion
+ * Sub Field is optional. Would be needed if using repeater fields with objects as values
+ ------------------------------------------------------------------*/
+function wicket_get_schema_field_values($parent_field, $field, $sub_field = ''){
+	$schemas = wicket_get_schemas();
+	if ($schemas) {
+		foreach ($schemas['data'] as $key => $schema) {
+			if ($schema['attributes']['key'] == $parent_field) {
+				$schema = $schemas['data'][$key];
+				break;
+			}
+		}
+		$options = wicket_get_schemas_options($schema, $field, $sub_field);
+		if ($options) {
+			return $options;
+		}
+	}
+}
+
+/**------------------------------------------------------------------
+ * Used to build data_fields array during form submission (common for additional_info)
+ * Uses passed in $data_fields as reference to build on to
+ * $data_fields = the array we build to pass to the api
+ * $field = The field within each schema (under an accordion in wicket)
+ * $schema = The ID for the accordion field (group of fields)
+ * $type = string, array, int, boolean or object
+ ------------------------------------------------------------------*/
+function wicket_add_data_field(&$data_fields, $field, $schema, $type){
+  if (isset($_POST[$field])) {
+    $value = $_POST[$field];
+
+		// remove empty arrays (likely select fields with the "choose option" set)
+		if ($type == 'array' && empty(array_filter($value))) {
+			return false;
+		}
+
+		// remove empty strings (likely select fields with the "choose option" set)
+		if ($type == 'string' && $value == '') {
+			return false;
+		}
+
+    // add conversion for booleans
+    if ($type == 'boolean' && $_POST[$field] == '1') {
+      $value = true;
+    }
+    if ($type == 'boolean' && $_POST[$field] == '0') {
+      $value = false;
+    }
+
+		// cast ints for the API (like year values)
+    if ($type == 'int' && $value) {
+      $value = (int)$value;
+    }elseif($type == 'int' && !$value) {
+      // dont include int fields if we want to blank them out
+      return false;
+    }
+
+		// convert object to arrays, replacing passed-in values looping over by reference
+    if ($type == 'object' && $value) {
+			foreach ($value as $key => &$index) {
+				$index = (array)json_decode(stripslashes($index));
+			}
+    }
+
+    // keep the fields for each schema together by keying the data_fields array by the schema id
+    // It still seems to work through the API this way, even though the wicket admin uses zero based array indexes
+    $data_fields[$schema]['value'][$field] = $value;
+    $data_fields[$schema]['$schema'] = $schema;
+  }else {
+    // pass empty array for multi-value fields to clear them out if no options are present
+    if ($type == 'array' || $type == 'object') {
+      $value = [];
+    }
+    // unset empty string if no value set. Sometimes happens to radio buttons with no value
+    if ($type == 'string') {
+      return false;
+    }
+    // don't return a field if array is being used using "oneOf" to clear them out if no options are present
+		// these are typically used in Wicket for initial yes/no radios followed by a field if choose "yes"
+    if ($type == 'array_oneof') {
+			return false;
+    }
+    $data_fields[$schema]['value'][$field] = $value;
+    $data_fields[$schema]['$schema'] = $schema;
+  }
+}
+
+/**------------------------------------------------------------------
+ * Create basic person record, no password
+ ------------------------------------------------------------------*/
+function wicket_create_person($given_name, $family_name, $address, $job_title = ''){
+  $client = wicket_api_client();
+
+  $wicket_settings = get_wicket_settings();
+  $parent_org = $wicket_settings['parent_org'];
+  $args = [
+    'query' => [
+      'filter' => [
+        'alternate_name_en_eq' => $parent_org
+      ],
+      'page' => [
+        'number' => 1,
+        'size' => 1,
+      ]
+    ]
+  ];
+  $parent_org = $client->get('organizations', $args);
+  if ($parent_org) {
+    $parent_org = $parent_org['data'][0]['id'];
+  }
+
+  // build person payload
+  $payload = [
+    'data' => [
+      'type' => 'people',
+      'attributes' => [
+        'given_name' => $given_name,
+        'family_name' => $family_name,
+      ],
+      'relationships' => [
+        'emails' => [
+          'data' => [
+            [
+              'type' => 'emails',
+              'attributes' => ['address' => $address]
+            ]
+          ]
+        ],
+      ]
+    ]
+  ];
+
+  // add optional job title
+  if (isset($job_title)) {
+    $payload['data']['attributes']['job_title'] = $job_title;
+  }
+
+  try {
+    $person = $client->post("organizations/$parent_org/people", ['json' => $payload]);
+    return $person;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Assign role to person
+ * $role_name is the text name of the role
+ * The lookup is case sensitive so "prospective AO" and "prospective ao" would be considered different roles
+ * Will create the role with matching name if it doesnt exist yet.
+ ------------------------------------------------------------------*/
+function wicket_assign_role($person_uuid, $role_name){
+  $client = wicket_api_client();
+
+  // build role payload
+  $payload = [
+    'data' => [
+      'type' => 'roles',
+      'attributes' => [
+        'name' => $role_name,
+      ]
+    ]
+  ];
+
+  try {
+    $client->post("people/$person_uuid/roles", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Assign organization membership to person
+ ------------------------------------------------------------------*/
+function wicket_assign_organization_membership($person_uuid, $org_id, $membership_id){
+  $client = wicket_api_client();
+
+  // build membership payload
+  $payload = [
+		'data' => [
+			'type' => 'organization_memberships',
+			'attributes' => [
+				'starts_at' => date('c', time()),
+				"ends_at" => date('c', strtotime('+1 year'))
+			],
+			'relationships' => [
+				'owner' => [
+					'data' => [
+						'id' => $person_uuid,
+						'type' => 'people'
+					]
+				],
+				'membership' => [
+					'data' => [
+						'id' => $membership_id,
+						'type' => 'memberships'
+					]
+				],
+				'organization' => [
+					'data' => [
+						'id' => $org_id,
+						'type' => 'organizations'
+					]
+				]
+			]
+		]
+	];
+
+  try {
+    $person = $client->post("organization_memberships", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    echo "<pre>";
+    print_r($e->getMessage());
+    echo "</pre>";
+
+    echo "<pre>";
+    print_r($errors);
+    echo "</pre>";
+    die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create organization
+ * $additional_info is data_fields. An array of arrays to get the number based indexing needed
+ * $org_type will be the machine name of the different org types available for the wicket instance
+ ------------------------------------------------------------------*/
+function wicket_create_organization($org_name, $org_type, $additional_info = []){
+  $client = wicket_api_client();
+
+  // build org payload
+  $payload = [
+		'data' => [
+			'type' => 'organizations',
+			'attributes' => [
+				'type' => $org_type,
+				'legal_name' => $org_name,
+			]
+		]
+	];
+
+  if (!empty($additional_info)) {
+    $payload['data']['attributes']['data_fields'] = $additional_info;
+  }
+
+  try {
+    $org = $client->post("organizations", ['json' => $payload]);
+    return $org;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create organization address
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_organization_address($org_id, $payload){
+  $client = wicket_api_client();
+
+  try {
+    $org = $client->post("organizations/$org_id/addresses", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create organization address
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_person_address($person_uuid, $payload){
+  $client = wicket_api_client();
+
+  try {
+    $org = $client->post("people/$person_uuid/addresses", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create organization email
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_organization_email($org_id, $payload){
+  $client = wicket_api_client();
+
+  try {
+    $org = $client->post("organizations/$org_id/emails", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create organization phone
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_organization_phone($org_id, $payload){
+  $client = wicket_api_client();
+
+  try {
+    $org = $client->post("organizations/$org_id/phones", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create person phone
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_person_phone($person_uuid, $payload){
+  $client = wicket_api_client();
+
+  try {
+    $org = $client->post("people/$person_uuid/phones", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create organization website
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_organization_web_address($org_id, $payload){
+  $client = wicket_api_client();
+
+  try {
+    $org = $client->post("organizations/$org_id/web_addresses", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Get Touchpoints
+ ------------------------------------------------------------------*/
+function wicket_get_current_user_touchpoints($service_id){
+  $client = wicket_api_client();
+  $person_id = wicket_current_person_uuid();
+
+  try {
+    $touchpoints = $client->get("people/$person_id/touchpoints?page[size]=100&filter[service_id]=$service_id", ['json']);
+    return $touchpoints;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Get active org memberships current user owns
+ ------------------------------------------------------------------*/
+function wicket_get_active_org_memberships(){
+  $client = wicket_api_client();
+  $person_id = wicket_current_person_uuid();
+  if ($person_id) {
+    $organization_memberships = $client->get("/organization_memberships?filter[owner_uuid_eq]=$person_id&filter[m]=or");
+    $active_memberships = [];
+    if (isset($organization_memberships['data'][0])) {
+      foreach ($organization_memberships['data'] as $org_membership) {
+        if ($org_membership['attributes']['active'] == 1) {
+          $active_memberships[] = $org_membership;
+        }
+      }
+    }
+    return $active_memberships;
+  }else {
+    return [];
+  }
 }
