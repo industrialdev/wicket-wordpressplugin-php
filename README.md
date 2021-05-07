@@ -2,6 +2,8 @@
 
 Download this repo in to the plugins directory of a Wordpress website.
 
+Make sure the plugin folder is called "wicket-wordpressplugin-php"
+
 Add this to the root composer.json file (in a bedrock configured wordpress site):
 
 under require:
@@ -66,6 +68,14 @@ Make sure the "CAS Server base url" option has a training slash!
 https://\<tenant>-login.staging.wicketcloud.com/
 
 --------------------------------------
+
+Check "Create user if not exist	" and "Enable SLO (Single Log Out)"
+
+--------------------------------------
+
+Set "Name of the service validate servlet (Default : serviceValidate)" to be "p3/serviceValidate"
+
+--------------------------------------
 Set "Xpath query used to extract cas user id during parsing" to this:
 
 ```
@@ -74,7 +84,7 @@ Set "Xpath query used to extract cas user id during parsing" to this:
 
 
 --------------------------------------
-Set "White List URL(s)" to this (use correct domain depending on environment):
+Set "White List URL(s)" to this (include staging and prod domains as well for those paths):
 
 ```
 http://172.16.231.130/wp/wp-login.php;http://172.16.231.130/wp/wp-admin
