@@ -419,7 +419,7 @@ function wicket_add_data_field(&$data_fields, $field, $schema, $type){
 /**------------------------------------------------------------------
  * Create basic person record, no password
  ------------------------------------------------------------------*/
-function wicket_create_person($given_name, $family_name, $address, $job_title = ''){
+function wicket_create_person($given_name, $family_name, $address, $job_title = '', $additional_info = []){
   $client = wicket_api_client();
 
   $wicket_settings = get_wicket_settings();
@@ -464,6 +464,10 @@ function wicket_create_person($given_name, $family_name, $address, $job_title = 
   // add optional job title
   if (isset($job_title)) {
     $payload['data']['attributes']['job_title'] = $job_title;
+  }
+  // add optional additional info
+  if (!empty($additional_info)) {
+    $payload['data']['attributes']['data_fields'] = $additional_info;
   }
 
   try {
@@ -801,4 +805,18 @@ function wicket_get_active_org_memberships(){
   }else {
     return [];
   }
+}
+
+/**------------------------------------------------------------------
+* Gets spoken languages resource list (used in account center comm. prefs)
+------------------------------------------------------------------*/
+function get_spoken_languages_list(){
+  $client = wicket_api_client();
+  $resource_types = $client->resource_types->all()->toArray();
+  $resource_types = collect($resource_types);
+  $found = $resource_types->filter(function ($item) {
+              return $item->resource_type == 'shared_written_spoken_languages';
+          });
+
+  return $found;
 }
