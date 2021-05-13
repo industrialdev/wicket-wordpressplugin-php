@@ -103,9 +103,26 @@ MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16
 
 ## CAS Login link for theme
 
-Use the following to retrieve CAS login link within your theme:
+Example of a header utility menu containing a language switcher and links for CAS:
 
 ```php
-<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/' ?>
+<ul class="menu">
+  <?php $locale = ICL_LANGUAGE_CODE == 'fr' ? '&locale=fr' : '&locale=en'; ?>
+  <?php if(is_user_logged_in()): ?>
+    <li class="menu-item">
+      <a href="<?php _e('/account-centre', 'industrial') ?>"> <?php _e('My Account', 'industrial') ?></a>
+    </li>
+    <li class="menu-item">
+      <a href="<?php echo wp_logout_url() ?>"><?php _e('Logout', 'industrial') ?></a>
+    </li>
+  <?php else: ?>
+    <li class="menu-item">
+      <a href="<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/'.$locale ?>"><?php _e('Login', 'industrial') ?></a>
+    </li>
+  <?php endif; ?>
+  <li class="menu-item">
+    <?php do_action('wpml_add_language_selector'); ?>
+  </li>
+</ul>
 ```
 
