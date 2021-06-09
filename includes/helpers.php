@@ -323,6 +323,14 @@ function wicket_get_schemas_options($schema, $field, $sub_field){
       $counter++;
     }
   }
+  // if field is using a repeater type field with 'move up/down and remove rows', get labels
+  if (isset($schema['attributes']['schema']['properties'][$field]['items']['properties'][$sub_field]['enumNames'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['properties'][$field]['items']['properties'][$sub_field]['enumNames'] as $key => $value) {
+      $return[$counter]['value'] = $value;
+      $counter++;
+    }
+  }
   return $return;
 }
 
