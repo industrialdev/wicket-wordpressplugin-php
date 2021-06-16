@@ -113,6 +113,9 @@ class wicket_update_password extends WP_Widget {
 
 	private function build_form()
 	{
+		if (!isset($_POST['wicket_update_password'])){
+			unset($_SESSION['wicket_password_form_errors']);
+		}
 		?>
 		<?php if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])):?>
 		<div class='alert alert-danger' role="alert">
