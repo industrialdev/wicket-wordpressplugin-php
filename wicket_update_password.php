@@ -115,7 +115,7 @@ class wicket_update_password extends WP_Widget {
 	{
 		?>
 		<?php if (isset($_SESSION['wicket_password_form_errors']) && !empty($_SESSION['wicket_password_form_errors'])):?>
-		<div class='alert alert--error'>
+		<div class='alert alert-danger' role="alert">
 			<p><?php printf( _n( 'The form could not be submitted because 1 error was found', 'The form could not be submitted because %s errors were found', count($_SESSION['wicket_password_form_errors']), 'sassquatch' ), number_format_i18n(count($_SESSION['wicket_password_form_errors']))); ?></p>
 			<?php
 			$counter = 1;
@@ -139,7 +139,7 @@ class wicket_update_password extends WP_Widget {
 			?>
 		</div>
 		<?php elseif(isset($_GET['success'])): ?>
-			<div class='alert alert--success'>
+			<div class='alert alert-success' role="alert">
 				<p><?php _e("Successfully Updated"); ?></p>
 			</div>
 		<?php endif; ?>
