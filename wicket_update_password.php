@@ -24,28 +24,28 @@ function process_wicket_password_form() {
 		$password_confirmation = isset($_POST['password_confirmation']) ? $_POST['password_confirmation'] : '';
 
 		if ($current_password == '') {
-			$current_pass_blank = new stdClass;
-			$current_pass_blank->meta->field = 'user.current_password';
-			$current_pass_blank->title = __("can't be blank");
-			$errors[] = $current_pass_blank;
+			$current_pass_blank = [];
+			$current_pass_blank['meta'] = (object)['field' => 'user.current_password'];
+			$current_pass_blank['title'] = __("can't be blank");
+			$errors[] = (object)$current_pass_blank;
 		}
 		if ($password == '') {
-			$pass_blank = new stdClass;
-			$pass_blank->meta->field = 'user.password';
-			$pass_blank->title = __("can't be blank");
-			$errors[] = $pass_blank;
+			$pass_blank = [];
+			$pass_blank['meta'] = (object)['field' => 'user.password'];
+			$pass_blank['title'] = __("can't be blank");
+			$errors[] = (object)$pass_blank;
 		}
 		if ($password_confirmation == '') {
-			$confirm_pass_blank = new stdClass;
-			$confirm_pass_blank->meta->field = 'user.password_confirmation';
-			$confirm_pass_blank->title = __("can't be blank");
-			$errors[] = $confirm_pass_blank;
+			$confirm_pass_blank = [];
+			$confirm_pass_blank['meta'] = (object)['field' => 'user.password_confirmation'];
+			$confirm_pass_blank['title'] = __("can't be blank");
+			$errors[] = (object)$confirm_pass_blank;
 		}
 		if ($password_confirmation != $password) {
-			$pass_blank = new stdClass;
-			$pass_blank->meta = (object)['field' => 'user.password'];
-			$pass_blank->title = __(" - Passwords do not match");
-			$errors[] = $pass_blank;
+			$pass_blank = [];
+			$pass_blank['meta'] = (object)['field' => 'user.password'];
+			$pass_blank['title'] = __(" - Passwords do not match");
+			$errors[] = (object)$pass_blank;
 		}
 		$_SESSION['wicket_password_form_errors'] = $errors;
 
