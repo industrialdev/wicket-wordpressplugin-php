@@ -362,9 +362,10 @@ function wicket_get_schema_field_values($parent_field, $field, $sub_field = ''){
  * $data_fields = the array we build to pass to the api
  * $field = The field within each schema (under an accordion in wicket)
  * $schema = The ID for the accordion field (group of fields)
- * $type = string, array, int, boolean or object
+ * $type = string, array, int, boolean, object or readonly
+ * $entity = usually the preloaded org or person object from the API
  ------------------------------------------------------------------*/
-function wicket_add_data_field(&$data_fields, $field, $schema, $type){
+function wicket_add_data_field(&$data_fields, $field, $schema, $type, $entity = ''){
   if (isset($_POST[$field])) {
     $value = $_POST[$field];
 
@@ -419,15 +420,183 @@ function wicket_add_data_field(&$data_fields, $field, $schema, $type){
     if ($type == 'array_oneof') {
 			return false;
     }
-    $data_fields[$schema]['value'][$field] = $value;
+
+    // if this field is being used as a "readonly" value on the edit form page,
+    // pass on the original value(s) within the schema otherwise they'll be emptied if not passed on PATCH
+    if ($type == 'readonly') {
+      foreach ($entity->data_fields as $df) {
+        if ($df['$schema'] == $schema) {
+          // look for existing value, if there is one, else ignore this field
+          if (isset($df['value'][$field])) {
+            $value = $df['value'][$field];
+          }else {
+            return false;
+          }
+        }
+      }
+    }
+
+    $data_fields[$schema]['value'][$field] = $value ?? '';
     $data_fields[$schema]['$schema'] = $schema;
   }
 }
 
 /**------------------------------------------------------------------
+* Assign a person to a membership on an org
+------------------------------------------------------------------*/
+function wicket_assign_person_to_org_membership($person_id, $membership_id, $org_membership_id, $org_membership){
+	$client = wicket_api_client();
+	// build payload to assign person to the membership on the org
+
+	$payload = [
+		'data' => [
+			'type' => 'person_memberships',
+			'attributes' => [
+				'starts_at' => $org_membership['data']['attributes']['starts_at'],
+				"ends_at" => $org_membership['data']['attributes']['ends_at'],
+				"status" => 'Active'
+			],
+			'relationships' => [
+				'person' => [
+					'data' => [
+						'id' => $person_id,
+						'type' => 'people'
+					]
+				],
+				'membership' => [
+					'data' => [
+						'id' => $membership_id,
+						'type' => 'memberships'
+					]
+				],
+				'organization_membership' => [
+					'data' => [
+						'id' => $org_membership_id,
+						'type' => 'organization_memberships'
+					]
+				]
+			]
+		]
+	];
+
+	try {
+		$client->post('person_memberships', ['json' => $payload]);
+		return true;
+	} catch (Exception $e) {
+		$errors = json_decode($e->getResponse()->getBody())->errors;
+		// echo "<pre>";
+		// print_r($errors);
+		// echo "</pre>";
+		// die;
+	}
+}
+
+/**------------------------------------------------------------------
+* Unassign a person from a membership on an org
+------------------------------------------------------------------*/
+function wicket_unassign_person_from_org_membership($person_membership_id){
+	$client = wicket_api_client();
+	try {
+		$client->delete("person_memberships/$person_membership_id");
+		return true;
+	} catch (Exception $e) {
+		$errors = json_decode($e->getResponse()->getBody())->errors;
+		// echo "<pre>";
+		// print_r($errors);
+		// echo "</pre>";
+	}
+}
+
+/**------------------------------------------------------------------
+ * Send email to user letting them know of a membership assignment
+ * for their account by an organization manager
+ ------------------------------------------------------------------*/
+function send_person_to_membership_assignment_email($person_uuid, $org_membership_id){
+	$client = wicket_api_client();
+  $lang = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : 'en';
+	try{
+		$organization_membership = $client->get("organization_memberships/$org_membership_id/?include=person,membership,organization_membership,organization");
+	}catch (Exception $e){
+	}
+
+	if ($organization_membership) {
+		foreach ($organization_membership['included'] as $included) {
+			if ($included['type'] == 'memberships') {
+				$membership = $included['attributes']['name_'.$lang];
+			}
+			if ($included['type'] == 'organizations') {
+				$organization = $included['attributes']['legal_name_'.$lang];
+			}
+		}
+	}
+
+	$person = wicket_get_person_by_id($person_uuid);
+
+	$to = $person->primary_email_address;
+	$first_name = $person->given_name;
+	$subject = "Welcome to SAIS!";
+	$body = "Hi $first_name, <br><br>
+	You have been assigned a membership as part of $organization.
+	<br>
+	<br>
+	Visit sais.org and login to complete your profile and explore your SAIS member benefits.
+	<br>
+	<br>
+	Thank you,
+	<br>
+	<br>
+	Southern Association of Independent Schools";
+	$headers = array('Content-Type: text/html; charset=UTF-8');
+	$headers[] = 'From: Southern Association of Independent Schools <info@sais.org>';
+	wp_mail($to,$subject,$body,$headers);
+}
+
+/**------------------------------------------------------------------
+ * Send email to NEW user letting them know of a membership assignment
+ * for their account by an organization manager
+ ------------------------------------------------------------------*/
+function send_new_person_to_membership_assignment_email($first_name, $last_name, $email, $org_membership_id){
+	$client = wicket_api_client();
+  $lang = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : 'en';
+	try{
+		$organization_membership = $client->get("organization_memberships/$org_membership_id/?include=person,membership,organization_membership,organization");
+	}catch (Exception $e){
+	}
+
+	if ($organization_membership) {
+		foreach ($organization_membership['included'] as $included) {
+			if ($included['type'] == 'memberships') {
+				$membership = $included['attributes']['name_'.$lang];
+			}
+			if ($included['type'] == 'organizations') {
+				$organization = $included['attributes']['legal_name_'.$lang];
+			}
+		}
+	}
+
+	$to = $email;
+	$subject = "Welcome to SAIS!";
+	$body = "Hi $first_name, <br><br>
+	You have been assigned a membership as part of $organization.
+	<br>
+	<br>
+	You will soon receive an Account Confirmation email with instructions on how to finalize your login account.
+	Once you have confirmed your account, visit sais.org and login to complete your profile and explore your SAIS member benefits.
+	<br>
+	<br>
+	Thank you,
+	<br>
+	<br>
+	Southern Association of Independent Schools";
+	$headers = array('Content-Type: text/html; charset=UTF-8');
+	$headers[] = 'From: Southern Association of Independent Schools <info@sais.org>';
+	wp_mail($to,$subject,$body,$headers);
+}
+
+/**------------------------------------------------------------------
  * Create basic person record, no password
  ------------------------------------------------------------------*/
-function wicket_create_person($given_name, $family_name, $address, $job_title = '', $additional_info = []){
+function wicket_create_person($given_name, $family_name, $address, $job_title = '', $gender = '', $additional_info = []){
   $client = wicket_api_client();
 
   $wicket_settings = get_wicket_settings();
@@ -473,6 +642,12 @@ function wicket_create_person($given_name, $family_name, $address, $job_title = 
   if (isset($job_title)) {
     $payload['data']['attributes']['job_title'] = $job_title;
   }
+
+  // add optional gender
+  if (isset($job_title)) {
+    $payload['data']['attributes']['gender'] = $gender;
+  }
+
   // add optional additional info
   if (!empty($additional_info)) {
     $payload['data']['attributes']['data_fields'] = $additional_info;
@@ -483,16 +658,8 @@ function wicket_create_person($given_name, $family_name, $address, $job_title = 
     return $person;
   } catch (Exception $e) {
     $errors = json_decode($e->getResponse()->getBody())->errors;
-    // echo "<pre>";
-    // print_r($e->getMessage());
-    // echo "</pre>";
-    //
-    // echo "<pre>";
-    // print_r($errors);
-    // echo "</pre>";
-    // die;
   }
-  return false;
+  return ['errors' => $errors];
 }
 
 /**------------------------------------------------------------------
@@ -765,6 +932,29 @@ function wicket_create_organization_web_address($org_id, $payload){
     // print_r($errors);
     // echo "</pre>";
     // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Create connection
+ * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ ------------------------------------------------------------------*/
+function wicket_create_connection($payload){
+  $client = wicket_api_client();
+
+  try {
+    $client->post('connections',['json' => $payload]);
+  } catch (\Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    echo "<pre>";
+    print_r($e->getMessage());
+    echo "</pre>";
+
+    echo "<pre>";
+    print_r($errors);
+    echo "</pre>";
+    die;
   }
   return false;
 }
