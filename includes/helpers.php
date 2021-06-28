@@ -84,7 +84,7 @@ function wicket_api_client_current_user() {
 function wicket_current_person_uuid(){
   // get the SDK client from the wicket module.
   if (function_exists('wicket_api_client')) {
-    $person_id = isset($_SESSION['personUuid']) ? $_SESSION['personUuid'] : '';
+    $person_id = wp_get_current_user()->user_login;
     return $person_id;
   }
 }

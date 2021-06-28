@@ -10,10 +10,12 @@ Author: Industrial
 
 /**------------------------------------------------------------------
  * Perform operations when the user is authed via CAS, but not yet in Wordpress
+ * For testing purposes since $cas_user_data contains data straight from CAS
+ * NOTE: Do not put person UUID here or anything else in $_SESSION for any reason.
+ * PHP Sessions can be unreliable and collisions can happen.
  ------------------------------------------------------------------*/
 function custom_action_before_auth_user_wordpress($cas_user_data) {
-  // store UUID in session to be used later for syncing roles, etc.
-  $_SESSION['personUuid'] = $cas_user_data['personUuid'];
+  // perhaps log CAS payload, etc
 }
 add_action('wp_cassify_before_auth_user_wordpress', 'custom_action_before_auth_user_wordpress', 1, 1);
 
