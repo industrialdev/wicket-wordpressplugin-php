@@ -19,9 +19,6 @@ under repositories, add this:
 
 then run composer update to get the wicket sdk
 
-## Important Note
-This plugin is common to all installs of Wordpress using Wicket. There is usually, for now, a lib/wicket.php within the theme with logic specific to each client, but any code changes to this module should be able to be made to all clients that use this module.
-
 ## Initial Setup
 
 
@@ -46,6 +43,7 @@ Within the CAS settings page, /wp/wp-admin/options-general.php?page=wp-cassify.p
 
   ### NGINX FOR CAS
   change/check the server_name value in nginx as the wp-cassify module uses that when logging in
+  
   MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16.231.130 (or correct domain in use) OTHERWISE CAS LOGIN WON'T WORK
 
 
@@ -88,46 +86,6 @@ To create a modified version of this form, it is advisable to disable this plugi
 
 Also, if needing to run both the core form plugin and your custom one, the functions will need to be renamed as well.
 
-## CAS SETUP
-Within the CAS settings, /wp/wp-admin/options-general.php?page=wp-cassify.php
-
-Make sure the "CAS Server base url" option has a training slash!
-
-https://\<tenant>-login.staging.wicketcloud.com/
-
---------------------------------------
-
-Check "Create user if not exist	" and "Enable SLO (Single Log Out)"
-
---------------------------------------
-
-Set "Name of the service validate servlet (Default : serviceValidate)" to be "p3/serviceValidate"
-
---------------------------------------
-Set "Xpath query used to extract cas user id during parsing" to this:
-
-```
-//cas:serviceResponse/cas:authenticationSuccess/cas:attributes/cas:personUuid
-```
-
-
---------------------------------------
-Set "White List URL(s)" to this (include staging and prod domains as well for those paths):
-
-```
-http://172.16.231.130/wp/wp-login.php;http://172.16.231.130/wp/wp-admin
-```
-
-Alternatively, you can use this to bypass CAS (use correct domain depending on environment):
-
-http://172.16.231.130/wp/wp-login.php?wp_cassify_bypass=bypass
-
-
-## NGINX FOR CAS
-
-change/check server_name value in nginx as the wp cassify module uses that when logging in
-
-MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16.231.130 (or correct domain in use) OTHERWISE CAS LOGIN WON'T WORK
 
 ## CAS Login link for theme
 
