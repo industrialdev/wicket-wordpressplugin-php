@@ -46,9 +46,25 @@ Within the CAS settings page, /wp/wp-admin/options-general.php?page=wp-cassify.p
   
   MAKE SURE IN /ETC/NGINX/NGINX.CONF YOU HAVE YOUR LOCAL SERVER_NAME SET TO 172.16.231.130 (or correct domain in use) OTHERWISE CAS LOGIN WON'T WORK
 
+  
+  
+## Wicket Plugin Configuration
+
+Fill out these fields here: **wp/wp-admin/admin.php?page=wicket_settings** or by clicking on "Wicket" on the left in the backend
+ - First, toggle which environment settings you want to use (stage or prod). The rest of the settings would be similar but different values for each environment.
+  
+ - API Endpoint, usually is **https://[client-name]-api.staging.wicketcloud.com** OR **https://[client-name]-api.wicketcloud.com** for production
+ 
+ - JWT Secret Key - provided by wicket devs
+ 
+ - Person ID - the admin user UUID the code can use to make admin-type calls. Otherwise the current logged in user is typically used for most operations. Provided by wicket devs
+ 
+ - Parent ORG - Top level organization used for creating new people on the create account form. This is the "alternate name" found in Wicket under "Organizations" for the top most organization. 
+ 
+ - Wicket Admin - The address of the admin interface. Ex: **https://[client-name]-admin.staging.wicketcloud.com** OR **https://[client-name]-admin.wicketcloud.com** for production
 
 
-# Enable plugin(s)
+# Available sub-plugin(s)
 
 ## Base Wicket Plugin
 Enable the "Wicket" plugin in the wordpress admin. This is required for any of the sub-plugins below. Enter the relevant API credentials on the provided settings form in the backend. Beyond containing the settings form, this plugin provides helper functions as well.
