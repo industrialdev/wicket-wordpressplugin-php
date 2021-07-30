@@ -415,6 +415,12 @@ function wicket_add_data_field(&$data_fields, $field, $schema, $type, $entity = 
     if ($type == 'string') {
       return false;
     }
+
+    // unset empty boolean if no value set. Sometimes happens to radio buttons with no value
+    if ($type == 'boolean') {
+      return false;
+    }
+
     // don't return a field if array is being used using "oneOf" to clear them out if no options are present
 		// these are typically used in Wicket for initial yes/no radios followed by a field if choose "yes"
     if ($type == 'array_oneof') {
@@ -424,15 +430,21 @@ function wicket_add_data_field(&$data_fields, $field, $schema, $type, $entity = 
     // if this field is being used as a "readonly" value on the edit form page,
     // pass on the original value(s) within the schema otherwise they'll be emptied if not passed on PATCH
     if ($type == 'readonly') {
-      foreach ($entity->data_fields as $df) {
-        if ($df['$schema'] == $schema) {
-          // look for existing value, if there is one, else ignore this field
-          if (isset($df['value'][$field])) {
-            $value = $df['value'][$field];
-          }else {
-            return false;
+      // make sure, usually on new accounts, that there is even AI fields to read from
+      // data_fields will likely be completely empty on new accounts
+      if (!empty($entity->data_fields)) {
+        foreach ($entity->data_fields as $df) {
+          if ($df['$schema'] == $schema) {
+            // look for existing value, if there is one, else ignore this field
+            if (isset($df['value'][$field])) {
+              $value = $df['value'][$field];
+            }else {
+              return false;
+            }
           }
         }
+      }else {
+        return false;
       }
     }
 
