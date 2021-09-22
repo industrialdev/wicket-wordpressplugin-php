@@ -14,7 +14,7 @@ function process_wicket_create_account_form() {
 	$errors = [];
 	if (isset($_POST['wicket_create_account'])){
 		if(!session_id()) session_start();
-				
+
 		$client = wicket_api_client();
 		/**------------------------------------------------------------------
 		* Create Account
@@ -27,31 +27,31 @@ function process_wicket_create_account_form() {
 
 		if ($first_name == '') {
 			$first_name_blank = new stdClass;
-			$first_name_blank->meta->field = 'user.given_name';
+			$first_name_blank->meta = (object)['field' => 'user.given_name'];
 			$first_name_blank->title = __("can't be blank");
 			$errors[] = $first_name_blank;
 		}
 		if ($last_name == '') {
 			$last_name_blank = new stdClass;
-			$last_name_blank->meta->field = 'user.family_name';
+			$last_name_blank->meta = (object)['field' => 'user.family_name'];
 			$last_name_blank->title = __("can't be blank");
 			$errors[] = $last_name_blank;
 		}
 		if ($email == '') {
 			$email_blank = new stdClass;
-			$email_blank->meta->field = 'emails.address';
+			$email_blank->meta = (object)['field' => 'emails.address'];
 			$email_blank->title = __("can't be blank");
 			$errors[] = $email_blank;
 		}
 		if ($password == '') {
 			$pass_blank = new stdClass;
-			$pass_blank->meta->field = 'user.password';
+			$pass_blank->meta = (object)['field' => 'user.password'];
 			$pass_blank->title = __("can't be blank");
 			$errors[] = $pass_blank;
 		}
 		if ($password_confirmation == '') {
 			$confirm_pass_blank = new stdClass;
-			$confirm_pass_blank->meta->field = 'user.password_confirmation';
+			$confirm_pass_blank->meta = (object)['field' => 'user.password_confirmation'];
 			$confirm_pass_blank->title = __("can't be blank");
 			$errors[] = $confirm_pass_blank;
 		}
