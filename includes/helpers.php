@@ -435,7 +435,7 @@ function wicket_add_data_field(&$data_fields, $field, $schema, $type, $entity = 
     if ($type == 'readonly') {
       // make sure, usually on new accounts, that there is even AI fields to read from
       // data_fields will likely be completely empty on new accounts
-      if (!empty((array)$entity->data_fields)) {
+      if (!empty((array)$entity->data_fields) && array_search($schema, array_column((array)$entity->data_fields, '$schema'))) {
         foreach ($entity->data_fields as $df) {
           if ($df['$schema'] == $schema) {
             // look for existing value, if there is one, else ignore this field
