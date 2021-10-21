@@ -386,7 +386,10 @@ function wicket_add_data_field(&$data_fields, $field, $schema, $type, $entity = 
     if ($type == 'boolean' && $_POST[$field] == '0') {
       $value = false;
     }
-
+    // if boolean is posted but no value, ignore it
+    if ($type == 'boolean' && $_POST[$field] == '') {
+      return false;
+    }
 		// cast ints for the API (like year values)
     if ($type == 'int' && $value) {
       $value = (int)$value;
