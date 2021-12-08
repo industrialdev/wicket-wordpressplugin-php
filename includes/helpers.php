@@ -302,6 +302,26 @@ function wicket_get_schemas_options($schema, $field, $sub_field){
       $counter++;
     }
   }
+  // if field is using an object type field, get keys
+  if (isset($schema['attributes']['schema']['properties'][$field]['oneOf'][0]['properties'][$sub_field]['enum'])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['properties'][$field]['oneOf'] as $key => $value) {
+      $return[$counter]['key'] = $value['properties'][$sub_field]['enum'][0];
+      $counter++;
+    }
+  }
+  // if field is using an object type field with values depending on another, get keys (these are buried deeper)
+  if (isset($schema['attributes']['schema']['properties'][$field]['items']['oneOf'][0])) {
+    $counter = 0;
+    foreach ($schema['attributes']['schema']['properties'][$field]['items']['oneOf'] as $key => $value) {
+      if (array_key_exists($sub_field, $value['properties'])) {
+        foreach ($value['properties'][$sub_field]['items']['enum'] as $sub_value) {
+          $return[$counter]['key'] = $sub_value;
+          $counter++;
+        }
+      }
+    }
+  }
 
   // -----------------------------
   // GET LABELS
