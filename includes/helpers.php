@@ -79,6 +79,23 @@ function wicket_api_client_current_user() {
 }
 
 /**------------------------------------------------------------------
+* Get wicket client, authorized as the current user.
+* Taken from the wicket SDK (it's used as a protected method there)
+------------------------------------------------------------------*/
+function wicket_access_token_for_person($person_id, $expiresIn = 60 * 60 * 8) {
+  $settings = get_wicket_settings();
+  $iat = time();
+
+  $token = [
+    'sub' => $person_id,
+    'iat' => $iat,
+    'exp' => $iat + $expiresIn,
+  ];
+
+  return Firebase\JWT\JWT::encode($token, $settings['jwt']);
+}
+
+/**------------------------------------------------------------------
 * Get current person wicket personUuid
 ------------------------------------------------------------------*/
 function wicket_current_person_uuid(){
