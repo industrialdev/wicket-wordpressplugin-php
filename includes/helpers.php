@@ -261,6 +261,21 @@ function wicket_get_person_connections_by_id($uuid){
 }
 
 /**------------------------------------------------------------------
+* Get all "connections" (relationships) of a Wicket org by UUID
+------------------------------------------------------------------*/
+function wicket_get_org_connections_by_id($uuid){
+  $client = wicket_api_client();
+  static $connections = null;
+  // prepare and memoize all connections from Wicket
+  if (is_null($connections)) {
+    $connections = $client->get('organizations/'.$uuid.'/connections?filter%5Bconnection_type_eq%5D=all&sort=-created_at');
+  }
+  if ($connections) {
+    return $connections;
+  }
+}
+
+/**------------------------------------------------------------------
 * Get all JSON Schemas from Wicket
 ------------------------------------------------------------------*/
 function wicket_get_schemas(){
@@ -719,8 +734,9 @@ function wicket_create_person($given_name, $family_name, $address, $job_title = 
  * $role_name is the text name of the role
  * The lookup is case sensitive so "prospective AO" and "prospective ao" would be considered different roles
  * Will create the role with matching name if it doesnt exist yet.
+ * $org_uuid is for adding a relationship to this role
  ------------------------------------------------------------------*/
-function wicket_assign_role($person_uuid, $role_name){
+function wicket_assign_role($person_uuid, $role_name, $org_uuid = ''){
   $client = wicket_api_client();
 
   // build role payload
@@ -732,6 +748,11 @@ function wicket_assign_role($person_uuid, $role_name){
       ]
     ]
   ];
+
+  if ($org_uuid != '') {
+    $payload['data']['relationships']['resource']['data']['id'] = $org_uuid;
+    $payload['data']['relationships']['resource']['data']['type'] = 'organizations';
+  }
 
   try {
     $client->post("people/$person_uuid/roles", ['json' => $payload]);
@@ -1072,6 +1093,31 @@ function wicket_get_active_org_memberships(){
 }
 
 /**------------------------------------------------------------------
+ * Get org memberships
+ ------------------------------------------------------------------*/
+function wicket_get_org_memberships($org_id){
+  $client = wicket_api_client();
+  if ($org_id) {
+    $organization_memberships = $client->get("/organizations/$org_id/membership_entries?sort=-ends_at&include=membership");
+    $memberships = [];
+    if (isset($organization_memberships['data'][0])) {
+      foreach ($organization_memberships['data'] as $org_membership) {
+        $memberships[$org_membership['id']]['membership'] = $org_membership;
+        // add included attributes as well
+        foreach ($organization_memberships['included'] as $included) {
+          if ($included['id'] == $org_membership['relationships']['membership']['data']['id']) {
+            $memberships[$org_membership['id']]['included'] = $included;
+          }
+        }
+      }
+    }
+    return $memberships;
+  }else {
+    return [];
+  }
+}
+
+/**------------------------------------------------------------------
 * Gets spoken languages resource list (used in account center comm. prefs)
 ------------------------------------------------------------------*/
 function get_spoken_languages_list(){
@@ -1080,6 +1126,34 @@ function get_spoken_languages_list(){
   $resource_types = collect($resource_types);
   $found = $resource_types->filter(function ($item) {
               return $item->resource_type == 'shared_written_spoken_languages';
+          });
+
+  return $found;
+}
+
+/**------------------------------------------------------------------
+* Gets org types resource list
+------------------------------------------------------------------*/
+function get_org_types_list(){
+  $client = wicket_api_client();
+  $resource_types = $client->resource_types->all()->toArray();
+  $resource_types = collect($resource_types);
+  $found = $resource_types->filter(function ($item) {
+              return $item->resource_type == 'organizations';
+          });
+
+  return $found;
+}
+
+/**------------------------------------------------------------------
+* Gets org connection types resource list
+------------------------------------------------------------------*/
+function get_person_to_organizations_connection_types_list(){
+  $client = wicket_api_client();
+  $resource_types = $client->resource_types->all()->toArray();
+  $resource_types = collect($resource_types);
+  $found = $resource_types->filter(function ($item) {
+              return $item->resource_type == 'connection_person_to_organizations';
           });
 
   return $found;
