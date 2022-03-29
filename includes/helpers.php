@@ -1070,6 +1070,68 @@ function wicket_get_current_user_touchpoints($service_id){
   return false;
 }
 
+// ----------------------------------------------------------------
+// USAGE:
+// $params = [
+//   'person_id' => '[uuid from wicket]',
+//   'action' => 'test action',
+//   'details' => 'these are some details',
+//   'data' => ['test' => 'thing']
+// ];
+// write_touchpoint($params);
+// ----------------------------------------------------------------
+function write_touchpoint($params){
+  $client = wicket_api_client();
+  $payload = build_touchpoint_payload($params);
+
+  if ($payload) {
+    try {
+      $res = $client->post('touchpoints',['json' => $payload]);
+    } catch (\Exception $e) {
+      // echo "<pre>";
+      // print_r($e->getMessage());
+      // echo "</pre>";
+    }
+    if (isset($res)) {
+      return true;
+    }
+  }
+}
+
+function build_touchpoint_payload($params){
+  $environment = get_option('wicket_admin_settings_environment');
+  // use correct service key based on environment
+  $wicket_service_id = $environment[0] == 'prod' ? '23ceaa2a-338d-4088-8dce-ddb887a0d12f' : 'accc3a0e-1580-4863-8cd2-2e849c2d465f';
+  $payload = [
+    'data' => [
+      'type' => 'touchpoints',
+      'attributes' => [
+        'action' => $params['action'],
+        'details' => html_entity_decode($params['details']),
+        'code' => str_replace(' ','_',strtolower($params['action'])),
+      ],
+      'relationships' => [
+        'person' => [
+          'data' => [
+            'id' => $params['person_id'],
+            'type' => 'people'
+          ]
+        ],
+        'service' => [
+          'data' => [
+            'id' => $wicket_service_id, //service id in wicket
+            'type' => 'services'
+          ]
+        ]
+      ],
+    ]
+  ];
+  if (isset($params['data'])) {
+    $payload['data']['attributes']['data'] = $params['data'];
+  }
+  return $payload;
+}
+
 /**------------------------------------------------------------------
  * Get active org memberships current user owns
  ------------------------------------------------------------------*/
