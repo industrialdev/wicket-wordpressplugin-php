@@ -20,6 +20,7 @@ under repositories, add this:
 then run composer update to get the wicket sdk
 
 *__If not using a composer-ized wordpress installation__*, edit wicket.php at the root of the plugin and add this line above the existing require statements:
+
 require_once('vendor/autoload.php'); // add this here because this site doesn't use a global composer setup
 
 Then run composer install from the plugin directory
