@@ -23,6 +23,17 @@ then run composer update to get the wicket sdk
 
 require_once('vendor/autoload.php'); // add this here because this site doesn't use a global composer setup
 
+Then add this bit to the composer.json in the plugin
+
+```
+"repositories": [
+  {
+    "type": "git",
+    "url": "https://github.com/industrialdev/wicket-sdk-php.git"
+  }
+]
+```
+
 Then run composer install from the plugin directory
 
 ## Initial Setup
