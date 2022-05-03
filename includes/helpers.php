@@ -904,8 +904,22 @@ function wicket_create_organization_address($org_id, $payload){
 }
 
 /**------------------------------------------------------------------
- * Create organization address
+ * Create person address
  * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ * an example might be the following:
+ $payload = [
+   'data' => [
+     'type' => 'addresses',
+     'attributes' => [
+       'type' => 'work',
+       'address1' => '123 fake st',
+       'city' => 'ottawa',
+       'country_code' => 'CA',
+       'state_name' => 'ON',
+       'zip_code' => 'k1z6x6'
+     ]
+   ]
+ ];
  ------------------------------------------------------------------*/
 function wicket_create_person_address($person_uuid, $payload){
   $client = wicket_api_client();
