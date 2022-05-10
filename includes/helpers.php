@@ -135,13 +135,10 @@ function wicket_get_all_people(){
 * Get person by UUID
 ------------------------------------------------------------------*/
 function wicket_get_person_by_id($uuid){
-  static $person = null;
-  if(is_null($person)) {
-    if ($uuid) {
-      $client = wicket_api_client();
-      $person = $client->people->fetch($uuid);
-      return $person;
-    }
+  if ($uuid) {
+    $client = wicket_api_client();
+    $person = $client->people->fetch($uuid);
+    return $person;
   }
   return $person;
 }
@@ -768,6 +765,56 @@ function wicket_assign_role($person_uuid, $role_name, $org_uuid = ''){
     // echo "</pre>";
     // die;
   }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Removes role from person
+ * $role_name is the text name of the role
+ * The lookup is case sensitive so "prospective AO" and "prospective ao" would be considered different roles
+ ------------------------------------------------------------------*/
+function wicket_remove_role($person_uuid, $role_name){
+  $client = wicket_api_client();
+  $person = wicket_get_person_by_id($person_uuid);
+
+  $role_id = '';
+  if ($person) {
+    foreach ($person->included() as $included) {
+      if ($included['type'] == 'roles' && $included['attributes']['name'] == $role_name ) {
+        // get the role id for use in the payload below
+        $role_id = $included['id'];
+        break;
+      }
+    }
+  }
+
+  if ($role_id) {
+    // build role payload
+    $payload = [
+      'data' => [
+        [
+          'type' => 'roles',
+          'id' => $role_id
+        ]
+      ]
+    ];
+
+    try {
+      $client->delete("people/$person_uuid/relationships/roles", ['json' => $payload]);
+      return true;
+    } catch (Exception $e) {
+      $errors = json_decode($e->getResponse()->getBody())->errors;
+      // echo "<pre>";
+      // print_r($e->getMessage());
+      // echo "</pre>";
+      //
+      // echo "<pre>";
+      // print_r($errors);
+      // echo "</pre>";
+      // die;
+    }
+  }
+
   return false;
 }
 
