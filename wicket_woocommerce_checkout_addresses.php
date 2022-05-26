@@ -16,6 +16,12 @@ add_action('woocommerce_before_checkout_form', 'wicket_prepopulate_addresses', 1
 
 function wicket_prepopulate_addresses() {
   $client = wicket_api_client();
+
+  // we only want to run this for logged in users
+  if (!wp_get_current_user()->user_login || !$client) {
+    return;
+  }
+
   $locale = defined('ICL_LANGUAGE_CODE') && ICL_LANGUAGE_CODE == 'fr' ? 'fr' : 'en';
 
   // Get existing person addresses
@@ -85,6 +91,12 @@ function wicket_prepopulate_addresses() {
 // PRE-POPULATE WOOCOMMERCE CHECKOUT FIELDS
 // --------------------------------------------------------------------------------------------------------------
 add_filter('woocommerce_checkout_get_value', function($input, $key) {
+  $client = wicket_api_client();
+
+  // we only want to run this for logged in users
+  if (!wp_get_current_user()->user_login || !$client) {
+    return;
+  }
 
   // Get existing wicket person that's logged in
   $person = wicket_current_person();
@@ -237,6 +249,11 @@ add_filter('woocommerce_checkout_fields' , 'add_checkout_fields');
 function add_checkout_fields($fields) {
   $client = wicket_api_client();
 
+  // we only want to run this for logged in users
+  if (!wp_get_current_user()->user_login || !$client) {
+    return $fields;
+  }
+
   // get available address types from wicket
   $resource_types = $client->get('resource_types');
   $address_types = array_filter($resource_types['data'], function($val){
@@ -296,6 +313,13 @@ function add_checkout_fields($fields) {
 // --------------------------------------------------------------------------------------------------------------
 add_action( 'woocommerce_checkout_create_order', 'woocommerce_payment_complete_store_addresses' );
 function woocommerce_payment_complete_store_addresses() {
+  $client = wicket_api_client();
+
+  // we only want to run this for logged in users
+  if (!wp_get_current_user()->user_login || !$client) {
+    return;
+  }
+
   $save_billing_address = $_POST['billing_save_address_to_wicket'] ?? '';
   $billing_address_type = $_POST['billing_address_address_type'];
 
