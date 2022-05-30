@@ -873,6 +873,74 @@ function wicket_assign_organization_membership($person_uuid, $org_id, $membershi
 }
 
 /**------------------------------------------------------------------
+ * Assign individual membership to person
+ ------------------------------------------------------------------*/
+function wicket_assign_individual_membership($person_uuid, $membership_id){
+  $client = wicket_api_client();
+
+  // build membership payload
+  $payload = [
+		'data' => [
+			'type' => 'person_memberships',
+			'attributes' => [
+				'starts_at' => date('c', time()),
+				// "ends_at" => date('c', strtotime('+1 year'))
+			],
+			'relationships' => [
+				'person' => [
+					'data' => [
+						'id' => $person_uuid,
+						'type' => 'people'
+					]
+				],
+				'membership' => [
+					'data' => [
+						'id' => $membership_id,
+						'type' => 'memberships'
+					]
+				]
+			]
+		]
+	];
+
+  try {
+    $person = $client->post("person_memberships", ['json' => $payload]);
+    return true;
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
+/**------------------------------------------------------------------
+ * Gets the current person memberships
+ * using the person membership entries endpoint
+ ------------------------------------------------------------------*/
+function wicket_get_current_person_memberships(){
+	$client = wicket_api_client();
+	$uuid = wicket_current_person_uuid();
+	static $memberships = null;
+	// prepare and memoize all connections from Wicket
+	if (is_null($memberships)) {
+	  try{
+			$memberships = $client->get('people/'.$uuid.'/membership_entries?include=membership,organization_membership.organization,fusebill_subscription');
+    }catch (Exception $e){
+    }
+	}
+	if ($memberships) {
+		return $memberships;
+	}
+}
+
+/**------------------------------------------------------------------
  * Create organization
  * $additional_info is data_fields. An array of arrays to get the number based indexing needed
  * $org_type will be the machine name of the different org types available for the wicket instance
