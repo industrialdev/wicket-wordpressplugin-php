@@ -49,40 +49,34 @@ function wicket_prepopulate_addresses() {
 
   if ($addresses) {
     echo "<h3>".__('Pre-populate Addresses', 'woocommerce')."</h3>";
-    echo "<h4>".__('Billing Address', 'woocommerce')."</h4>";
-    echo '<form action="" method="post">';
-
-    echo "<select name='prepopulate_billing_address'>";
+    echo "<div class='row'>";
+    echo '<form action="" method="post" class="wicket__address-form col-lg-6">';
+    echo "<label class='form__label'>".__('Billing Address', 'woocommerce')."</label>";
+    echo "<select class='form__select' name='prepopulate_billing_address'>";
     echo "<option value=''>".__('-- Choose Address --', 'woocommerce')."</option>";
     foreach ($addresses as $address) {
       echo "<option value='".$address['id']."'>".$address['attributes']['formatted_address_label']."</option>";
     }
     echo "</select>";
-    echo "<br>";
-    echo "<br>";
-    echo "<input type='submit' class='button alt' value='".__('Submit', 'woocommerce')."'>";
+    echo "<p><input type='submit' class='button alt' value='".__('Select', 'woocommerce')."'></p>";
     echo "</form>";
 
 
     // only show shipping field if the cart has shipping fields displayed
     if (WC()->cart->needs_shipping()) {
-      echo "<br><h4>".__('Shipping Address', 'woocommerce')."</h4>";
-      echo '<form action="" method="post">';
+      echo '<form action="" method="post" class="wicket__address-form col-lg-6">';
 
-      echo "<select name='prepopulate_shipping_address'>";
+      echo "<label class='form__label'>".__('Shipping Address', 'woocommerce')."</label>";
+      echo "<select class='form__select' name='prepopulate_shipping_address'>";
       echo "<option value=''>".__('-- Choose Address --', 'woocommerce')."</option>";
       foreach ($addresses as $address) {
         echo "<option value='".$address['id']."'>".$address['attributes']['formatted_address_label']."</option>";
       }
       echo "</select>";
-      echo "<br>";
-      echo "<br>";
-      echo "<input type='submit' class='button alt' value='".__('Submit', 'woocommerce')."'>";
+      echo "<p><input type='submit' class='button alt' value='".__('Select', 'woocommerce')."'></p>";
       echo "</form>";
-      echo "<br>";
-      echo "<hr aria-hidden='true'>";
-      echo "<br>";
     }
+    echo "</div>";
   }
 }
 
