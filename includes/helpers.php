@@ -660,7 +660,7 @@ function send_new_person_to_membership_assignment_email($first_name, $last_name,
 /**------------------------------------------------------------------
  * Create basic person record, no password
  ------------------------------------------------------------------*/
- function wicket_create_person($given_name, $family_name, $address = '', $job_title = '', $gender = '', $additional_info = []){
+ function wicket_create_person($given_name, $family_name, $address = '', $password = '', $password_confirmation = '', $job_title = '', $gender = '', $additional_info = []){
   $client = wicket_api_client();
 
   $wicket_settings = get_wicket_settings();
@@ -699,17 +699,19 @@ function send_new_person_to_membership_assignment_email($first_name, $last_name,
       'attributes' => ['address' => $address]
     ];
   }
-
+  // add optional password
+  if (isset($password) && isset($password_confirmation) && $password != '' && $password_confirmation != '') {
+    $payload['data']['attributes']['user']['password'] = $password;
+    $payload['data']['attributes']['user']['password_confirmation'] = $password_confirmation;
+  }
   // add optional job title
   if (isset($job_title)) {
     $payload['data']['attributes']['job_title'] = $job_title;
   }
-
   // add optional gender
   if (isset($job_title)) {
     $payload['data']['attributes']['gender'] = $gender;
   }
-
   // add optional additional info
   if (!empty($additional_info)) {
     $payload['data']['attributes']['data_fields'] = $additional_info;
