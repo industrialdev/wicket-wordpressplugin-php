@@ -169,7 +169,7 @@ class wicket_create_account extends WP_Widget {
 		?>
 		<script src='https://www.google.com/recaptcha/api.js?hl=en'></script>
 		<?php if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])):?>
-		<div class='alert alert--error'>
+		<div class='alert alert-danger' role="alert">
 			<p><?php printf( _n( 'The form could not be submitted because 1 error was found', 'The form could not be submitted because %s errors were found', count($_SESSION['wicket_create_account_form_errors']), 'sassquatch' ), number_format_i18n(count($_SESSION['wicket_create_account_form_errors']))); ?></p>
 			<?php
 			$counter = 1;
@@ -312,6 +312,7 @@ class wicket_create_account extends WP_Widget {
 			<div class="g-recaptcha" data-sitekey="<?php echo $recaptcha_key ?>"></div>
 			<?php endif; ?>
 			<input type="hidden" name="wicket_create_account" value="<?php echo $this->id_base . '-' . $this->number; ?>" />
+			<br>
 			<input class="button button--primary" type="submit" value="<?php _e('Submit') ?>">
 		</form>
 		<?php
