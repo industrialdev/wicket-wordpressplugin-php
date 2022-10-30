@@ -223,6 +223,21 @@ function wicket_get_organizations(){
 }
 
 /**------------------------------------------------------------------
+* Get organization by UUID from Wicket
+------------------------------------------------------------------*/
+function wicket_get_organization($uuid){
+  $client = wicket_api_client();
+  static $organization = null;
+  // prepare and memoize organization from Wicket
+  if (is_null($organization)) {
+    $organization = $client->get('organizations/'.$uuid);
+  }
+  if ($organization) {
+    return $organization;
+  }
+}
+
+/**------------------------------------------------------------------
 * Get all "connections" (relationships) of a Wicket person
 ------------------------------------------------------------------*/
 function wicket_get_person_connections(){
