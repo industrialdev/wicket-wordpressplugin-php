@@ -135,9 +135,10 @@ Example of a header utility menu containing a language switcher and links for CA
       <a href="<?php echo wp_logout_url() ?>"><?php _e('Logout', 'industrial') ?></a>
     </li>
   <?php else: ?>
-    <li class="menu-item">
-      <a href="<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/'.$locale ?>"><?php _e('Login', 'industrial') ?></a>
-    </li>
+   <li class="menu-item">
+	   <?php $referrer = isset($_GET['referrer']) ? WP_HOME.$_GET['referrer'].$locale : home_url($wp->request, 'https').'/'.$locale; ?>
+	   <a class="" href="<?php echo get_option('wp_cassify_base_url').'login?service='.$referrer ?>"><?php _e('Login', 'industrial') ?></a>
+  </li>
   <?php endif; ?>
   <li class="menu-item">
     <?php do_action('wpml_add_language_selector'); ?>
