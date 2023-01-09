@@ -7,7 +7,8 @@ Make sure the plugin folder is called "wicket-wordpressplugin-php"
 Add this to the root composer.json file (in a bedrock configured wordpress site):
 
 under require:
-` "industrialdev/wicket-sdk-php": "dev-master",`
+` "
+aldev/wicket-sdk-php": "dev-master",`
 
 under repositories, add this:
 ```
@@ -129,15 +130,16 @@ Example of a header utility menu containing a language switcher and links for CA
   <?php $locale = ICL_LANGUAGE_CODE == 'fr' ? '&locale=fr' : '&locale=en'; ?>
   <?php if(is_user_logged_in()): ?>
     <li class="menu-item">
-      <a href="<?php _e('/account-centre', 'industrial') ?>"> <?php _e('My Account', 'industrial') ?></a>
+      <a href="<?php _e('/account-centre', 'wicket') ?>"> <?php _e('My Account', 'wicket') ?></a>
     </li>
     <li class="menu-item">
-      <a href="<?php echo wp_logout_url() ?>"><?php _e('Logout', 'industrial') ?></a>
+      <a href="<?php echo wp_logout_url() ?>"><?php _e('Logout', 'wicket') ?></a>
     </li>
   <?php else: ?>
-    <li class="menu-item">
-      <a href="<?php echo get_option('wp_cassify_base_url').'login?service='.home_url($wp->request).'/'.$locale ?>"><?php _e('Login', 'industrial') ?></a>
-    </li>
+   <li class="menu-item">
+	   <?php $referrer = isset($_GET['referrer']) ? WP_HOME.$_GET['referrer'].$locale : home_url($wp->request, 'https').'/'.$locale; ?>
+	   <a class="" href="<?php echo get_option('wp_cassify_base_url').'login?service='.$referrer ?>"><?php _e('Login', 'wicket') ?></a>
+  </li>
   <?php endif; ?>
   <li class="menu-item">
     <?php do_action('wpml_add_language_selector'); ?>
