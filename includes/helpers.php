@@ -1170,6 +1170,43 @@ function wicket_create_organization_web_address($org_id, $payload){
 /**------------------------------------------------------------------
  * Create connection
  * $payload is an array of attributes. See how wicket does this via the API/network tab in chrome
+ * an example might be the following:
+$relationship_payload = [
+    'data' => [
+      'type' => 'connections',
+      'attributes' => [
+        'type' => 'employee',
+        'starts_at' => date("Y-m-d"),
+        'description' => 'my description goes here'
+      ],
+      'relationships' => [
+        'organization' => [
+          'data' => [
+            'id' => $org_id, //org id
+            'type' => 'organizations'
+          ]
+        ],
+        'person' => [
+          'data' => [
+            'id' => $person['data']['id'],
+            'type' => 'people'
+          ]
+        ],
+        'from' => [
+          'data' => [
+            'id' => $person['data']['id'],
+            'type' => 'people'
+          ]
+        ],
+        'to' => [
+          'data' => [
+            'id' => $org_id, //org id
+            'type' => 'organizations'
+          ]
+        ],
+      ],
+    ]
+  ];
  ------------------------------------------------------------------*/
 function wicket_create_connection($payload){
   $client = wicket_api_client();
