@@ -43,6 +43,12 @@ function process_wicket_create_account_form() {
 			$email_blank->title = __("can't be blank");
 			$errors[] = $email_blank;
 		}
+		if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			$email_invalid = new stdClass;
+			$email_invalid->meta = (object)['field' => 'emails.address'];
+			$email_invalid->title = __("must be valid email");
+			$errors[] = $email_invalid;
+		}
 		if ($password == '') {
 			$pass_blank = new stdClass;
 			$pass_blank->meta = (object)['field' => 'user.password'];
@@ -213,7 +219,7 @@ class wicket_create_account extends WP_Widget {
 		<form class='manage_password_form' method="post">
 			<div class="form__group">
 				<label class="form__label" for="given_name"><?php _e('First Name') ?>
-					<span class="required">*</span>
+					<span class="required" aria-label="<?php _e('Required','wicket') ?>">*</span>
 					<?php
 					if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])) {
 						foreach ($_SESSION['wicket_create_account_form_errors'] as $key => $error) {
@@ -232,7 +238,7 @@ class wicket_create_account extends WP_Widget {
 
 			<div class="form__group">
 				<label class="form__label" for="family_name"><?php _e('Last Name') ?>
-					<span class="required">*</span>
+					<span class="required" aria-label="<?php _e('Required','wicket') ?>">*</span>
 					<?php
 					if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])) {
 						foreach ($_SESSION['wicket_create_account_form_errors'] as $key => $error) {
@@ -251,7 +257,7 @@ class wicket_create_account extends WP_Widget {
 
 			<div class="form__group">
 				<label class="form__label" for="address"><?php _e('Email') ?>
-					<span class="required">*</span>
+					<span class="required" aria-label="<?php _e('Required','wicket') ?>">*</span>
 					<?php
 					if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])) {
 						foreach ($_SESSION['wicket_create_account_form_errors'] as $key => $error) {
@@ -270,7 +276,7 @@ class wicket_create_account extends WP_Widget {
 
 			<div class="form__group">
 				<label class="form__label" for="password"><?php _e('Password') ?>
-					<span class="required">*</span>
+					<span class="required" aria-label="<?php _e('Required','wicket') ?>">*</span>
 					<?php
 					if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])) {
 						foreach ($_SESSION['wicket_create_account_form_errors'] as $key => $error) {
@@ -289,7 +295,7 @@ class wicket_create_account extends WP_Widget {
 
 			<div class="form__group">
 				<label class="form__label" for="password_confirmation"><?php _e('Confirm password') ?>
-					<span class="required">*</span>
+					<span class="required" aria-label="<?php _e('Required','wicket') ?>">*</span>
 					<?php
 					if (isset($_SESSION['wicket_create_account_form_errors']) && !empty($_SESSION['wicket_create_account_form_errors'])) {
 						foreach ($_SESSION['wicket_create_account_form_errors'] as $key => $error) {
