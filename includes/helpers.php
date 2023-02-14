@@ -587,88 +587,66 @@ function wicket_unassign_person_from_org_membership($person_membership_id){
 }
 
 /**------------------------------------------------------------------
- * Send email to user letting them know of a membership assignment
+ * Send email to user letting them know of a team assignment
  * for their account by an organization manager
  ------------------------------------------------------------------*/
-function send_person_to_membership_assignment_email($person_uuid, $org_membership_id){
-	$client = wicket_api_client();
+function send_person_to_team_assignment_email($user, $org_id){
+  $org = wicket_get_organization($org_id);
   $lang = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : 'en';
-	try{
-		$organization_membership = $client->get("organization_memberships/$org_membership_id/?include=person,membership,organization_membership,organization");
-	}catch (Exception $e){
-	}
+  $person = wicket_get_person_by_id($user->data->user_login);
 
-	if ($organization_membership) {
-		foreach ($organization_membership['included'] as $included) {
-			if ($included['type'] == 'memberships') {
-				$membership = $included['attributes']['name_'.$lang];
-			}
-			if ($included['type'] == 'organizations') {
-				$organization = $included['attributes']['legal_name_'.$lang];
-			}
-		}
+	if ($org) {
+	  $organization_name = $org['data']['attributes']['legal_name_'.$lang];
 	}
-
-	$person = wicket_get_person_by_id($person_uuid);
 
 	$to = $person->primary_email_address;
 	$first_name = $person->given_name;
-	$subject = "Welcome to SAIS!";
+  $last_name = $person->family_name;
+	$subject = "Welcome to NJBIA!";
 	$body = "Hi $first_name, <br><br>
-	You have been assigned a membership as part of $organization.
+	You have been assigned a membership as part of $organization_name.
 	<br>
 	<br>
-	Visit sais.org and login to complete your profile and explore your SAIS member benefits.
+	Visit njbia.org and login to complete your profile and explore your member benefits.
 	<br>
 	<br>
 	Thank you,
 	<br>
 	<br>
-	Southern Association of Independent Schools";
+	New Jersey Business & Industry Association";
 	$headers = array('Content-Type: text/html; charset=UTF-8');
-	$headers[] = 'From: Southern Association of Independent Schools <info@sais.org>';
+	$headers[] = 'From: New Jersey Business & Industry Association <info@njbia.org>';
 	wp_mail($to,$subject,$body,$headers);
 }
 
 /**------------------------------------------------------------------
- * Send email to NEW user letting them know of a membership assignment
+ * Send email to NEW user letting them know of a team assignment
  * for their account by an organization manager
  ------------------------------------------------------------------*/
-function send_new_person_to_membership_assignment_email($first_name, $last_name, $email, $org_membership_id){
-	$client = wicket_api_client();
+function send_new_person_to_team_assignment_email($first_name, $last_name, $email, $org_id){
+  $org = wicket_get_organization($org_id);
   $lang = defined('ICL_LANGUAGE_CODE') ? ICL_LANGUAGE_CODE : 'en';
-	try{
-		$organization_membership = $client->get("organization_memberships/$org_membership_id/?include=person,membership,organization_membership,organization");
-	}catch (Exception $e){
-	}
 
-	if ($organization_membership) {
-		foreach ($organization_membership['included'] as $included) {
-			if ($included['type'] == 'memberships') {
-				$membership = $included['attributes']['name_'.$lang];
-			}
-			if ($included['type'] == 'organizations') {
-				$organization = $included['attributes']['legal_name_'.$lang];
-			}
-		}
+	if ($org) {
+	  $organization_name = $org['data']['attributes']['legal_name_'.$lang];
 	}
 
 	$to = $email;
-	$subject = "Welcome to SAIS!";
+	$subject = "Welcome to NJBIA!";
 	$body = "Hi $first_name, <br><br>
-	You have been assigned a membership as part of $organization.
+	You have been assigned a membership as part of $organization_name.
 	<br>
 	<br>
 	You will soon receive an Account Confirmation email with instructions on how to finalize your login account.
-	Once you have confirmed your account, visit sais.org and login to complete your profile and explore your SAIS member benefits.
+	Once you have confirmed your account, visit njbia.org and login to complete your profile and explore your member benefits.
 	<br>
 	<br>
 	Thank you,
 	<br>
 	<br>
-	Southern Association of Independent Schools";
+	New Jersey Business & Industry Association";
 	$headers = array('Content-Type: text/html; charset=UTF-8');
-	$headers[] = 'From: Southern Association of Independent Schools <info@sais.org>';
+	$headers[] = 'From: New Jersey Business & Industry Association <info@njbia.org>';
 	wp_mail($to,$subject,$body,$headers);
 }
 
