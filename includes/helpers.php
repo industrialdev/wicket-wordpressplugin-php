@@ -222,11 +222,7 @@ function wicket_get_organizations(){
 ------------------------------------------------------------------*/
 function wicket_get_organization($uuid){
   $client = wicket_api_client();
-  static $organization = null;
-  // prepare and memoize organization from Wicket
-  if (is_null($organization)) {
-    $organization = $client->get('organizations/'.$uuid);
-  }
+  $organization = $client->get('organizations/'.$uuid);
   if ($organization) {
     return $organization;
   }
