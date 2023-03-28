@@ -522,14 +522,30 @@ function add_membership_team_restored_webhook_action( $post_id ) {
 
 function get_formatted_item_data( $team ) {
     $wicket_organization = get_field( "wicket_organization", $team->get_id() );
+    $start_date = $team->get_date();
+    $end_date = $team->get_membership_end_date();
+    
+    // Check to see if this team has an attached subscription. 
+    // If it does, pass the subscription start and end dates to Wicket
+    // Else fall back to using the team post "created" and "team memberships begin to expire" dates
+    $team_subscription_id = get_post_meta($team->get_id(),'_subscription_id')[0] ?? '';
+    if ($team_subscription_id) { 
+        // $start_date = get_post_meta($team_subscription_id, '_schedule_start');
+        // $end_date = get_post_meta($team_subscription_id, '_schedule_end');    
+
+        $team_subscription = wcs_get_subscription($team_subscription_id);
+        $sub_instance = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
+        // $start_date = $sub_instance->get_subscription_event_date( $team_subscription, 'start' );
+        $end_date = $sub_instance->get_subscription_event_date( $team_subscription, 'end' );
+    }
 
     $payload = [
         'id' => $team->get_id(),
         'name' => $team->get_name(),
         'owner' => $team->get_owner()->data->user_login,
         'membership_plan' => $team->get_plan(),
-        'date' => $team->get_date(),
-        'end_date' => $team->get_membership_end_date(),
+        'date' => $start_date,
+        'end_date' => $end_date,
         'wicket_organization' => $wicket_organization,
     ];
 
