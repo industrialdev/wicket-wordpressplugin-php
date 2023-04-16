@@ -12,8 +12,8 @@ require_once('classes/class_wicket_create_account_settings.php');
 
 function process_wicket_create_account_form() {
 	$errors = [];
+	if(!session_id()) session_start();
 	if (isset($_POST['wicket_create_account'])){
-		if(!session_id()) session_start();
 
 		$client = wicket_api_client();
 		/**------------------------------------------------------------------
@@ -124,8 +124,10 @@ function process_wicket_create_account_form() {
 				die;
 			}
 		}
-	} else if(isset($_SESSION['wicket_create_account_form_errors'])) {
-		unset($_SESSION['wicket_create_account_form_errors']);
+	} else {
+		if(isset($_SESSION['wicket_create_account_form_errors'])){
+			unset($_SESSION['wicket_create_account_form_errors']);
+		}
 	}
 }
 add_action('init', 'process_wicket_create_account_form');
