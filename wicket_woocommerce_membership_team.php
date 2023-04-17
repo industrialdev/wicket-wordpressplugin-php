@@ -327,6 +327,15 @@ function handle_new_object_published( $new_status, $old_status, $post_object ) {
  */
 function add_wicket_organization_metadata($member, $team, $user_membership) {
     update_post_meta( $user_membership->get_id(), 'wicket_organization', get_field( "wicket_organization", $team->get_id() ) );
+    
+    // Ensure webhooks get triggered on the user_membership after updating the meta
+    // this is required for both _team_id changes made by the teams plugin and 
+    // the wicket_organization meta field above.
+    do_action( 'wc_memberships_user_membership_saved', $user_membership->get_plan(), array(
+        'user_id'            => $user_membership->get_user_id(),
+        'user_membership_id' => $user_membership->get_id(),
+        'is_update'          => true,
+    ) );
 }
 
 /**
