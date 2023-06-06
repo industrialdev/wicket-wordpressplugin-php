@@ -87,7 +87,7 @@ function wicket_access_token_for_person($person_id, $expiresIn = 60 * 60 * 8) {
     'exp' => $iat + $expiresIn,
   ];
 
-  return Firebase\JWT\JWT::encode($token, $settings['jwt']);
+  return Firebase\JWT\JWT::encode($token, $settings['jwt'], 'HS256');
 }
 
 /**------------------------------------------------------------------
