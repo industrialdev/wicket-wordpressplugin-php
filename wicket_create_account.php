@@ -290,6 +290,7 @@ class wicket_create_account extends WP_Widget {
 					}
 					?>
 				</label>
+				<br><p class='small-text italic-text mb-0'>Minimum of 8 characters</p>
 				<input class="form__input" <?php if (isset($password_err) && $password_err): echo "class='error_input'"; endif; ?> required type="password" name="password" id="password" value="">
 			</div>
 
