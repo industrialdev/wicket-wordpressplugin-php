@@ -1230,9 +1230,9 @@ function wicket_get_current_user_touchpoints($service_id){
 // ];
 // write_touchpoint($params);
 // ----------------------------------------------------------------
-function write_touchpoint($params){
+function write_touchpoint($params, $wicket_service_id){
   $client = wicket_api_client();
-  $payload = build_touchpoint_payload($params);
+  $payload = build_touchpoint_payload($params, $wicket_service_id);
 
   if ($payload) {
     try {
@@ -1248,10 +1248,8 @@ function write_touchpoint($params){
   }
 }
 
-function build_touchpoint_payload($params){
-  $environment = get_option('wicket_admin_settings_environment');
-  // use correct service key based on environment
-  $wicket_service_id = $environment[0] == 'prod' ? '23ceaa2a-338d-4088-8dce-ddb887a0d12f' : 'accc3a0e-1580-4863-8cd2-2e849c2d465f';
+function build_touchpoint_payload($params, $wicket_service_id){
+
   $payload = [
     'data' => [
       'type' => 'touchpoints',
