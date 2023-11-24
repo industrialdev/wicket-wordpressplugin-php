@@ -1282,6 +1282,48 @@ function build_touchpoint_payload($params){
   return $payload;
 }
 
+// ----------------------------------------------------------------
+// use this to get/create a service id to then pass into the write_touchpoint() function
+// example:
+// $service_id = get_create_touchpoint_service_id('Events Calendar', 'Events from the website');
+// write_touchpoint($params, $service_id);
+// ----------------------------------------------------------------
+function get_create_touchpoint_service_id($service_name, $service_description = 'Custom from WP') {
+  $client = wicket_api_client();
+
+  // check for existing service, return service ID
+  $existing_services = $client->get('services')['data'];
+  $existing_service = reset(array_filter($existing_services, function($service) use ($service_name) {
+    return isset($service['attributes']['name']) && $service['attributes']['name'] === $service_name;
+  }));
+  if ($existing_service) {
+    return $existing_service['id'];
+  }
+
+  // if no existing service, create one and return service ID
+  $payload['data']['attributes'] = [
+    'name' => $service_name,
+    'description' => $service_description,
+    'status' => 'active',
+    'integration_type' => "custom",
+  ];
+  try {
+    $service = $client->post("/services", ['json' => $payload]);
+    return $service['data']['id'];
+  } catch (Exception $e) {
+    $errors = json_decode($e->getResponse()->getBody())->errors;
+    // echo "<pre>";
+    // print_r($e->getMessage());
+    // echo "</pre>";
+    //
+    // echo "<pre>";
+    // print_r($errors);
+    // echo "</pre>";
+    // die;
+  }
+  return false;
+}
+
 /**------------------------------------------------------------------
  * Get active org memberships current user owns
  ------------------------------------------------------------------*/
