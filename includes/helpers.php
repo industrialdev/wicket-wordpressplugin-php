@@ -40,11 +40,7 @@ function wicket_api_client() {
     // connect to the wicket api and get the current person
     $wicket_settings = get_wicket_settings();
     $client = new Client($app_key = '', $wicket_settings['jwt'], $wicket_settings['api_endpoint']);
-    $client->authorize($wicket_settings['person_id']);
-    $person = $client->people->fetch($wicket_settings['person_id']);
-
-    // test the endpoint before returning the client to ensure it's up
-    $client->get($wicket_settings['api_endpoint']);
+    $client->authorize($wicket_settings['person_id']); 
   }catch (Exception $e) {
     // don't return the $client unless the API is up.
     return false;
