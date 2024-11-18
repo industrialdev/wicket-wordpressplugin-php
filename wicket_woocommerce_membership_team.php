@@ -25,37 +25,37 @@ function show_meta_fields_in_rest() {
 
     register_meta( 'post', 'wicket_organization', array(
         'type' => 'string',
-        'subtype' => 'wc_memberships_team',
+        'object_subtype' => 'wc_memberships_team',
         'single' => true,
         'show_in_rest' => true
     ));
     register_meta( 'post', '_seat_count', array(
         'type' => 'string',
-        'subtype' => 'wc_memberships_team',
-          'single' => true,
+        'object_subtype' => 'wc_memberships_team',
+        'single' => true,
         'show_in_rest' => true
     ));
     register_meta( 'post', '_member_id', array(
         'type' => 'string',
-        'subtype' => 'wc_memberships_team',
+        'object_subtype' => 'wc_memberships_team',
         'single' => false,
         'show_in_rest' => true
     ));
     register_meta( 'post', '_edit_last', array(
         'type' => 'string',
-        'subtype' => 'wc_memberships_team',
+        'object_subtype' => 'wc_memberships_team',
         'single' => true,
         'show_in_rest' => true
     ));
     register_meta( 'post', '_start_date', array(
         'type' => 'string',
-        'subtype' => 'wc_memberships_team',
+        'object_subtype' => 'wc_memberships_team',
         'single' => true,
         'show_in_rest' => true
     ));
     register_meta( 'post', '_end_date', array(
         'type' => 'string',
-        'subtype' => 'wc_memberships_team',
+        'object_subtype' => 'wc_memberships_team',
         'single' => true,
         'show_in_rest' => true
     ));
